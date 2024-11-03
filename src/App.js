@@ -28,7 +28,7 @@ const CREATE_CHI_TIEU = gql`
 function App() {
 
   // Use Apollo Client's useQuery hook
-  const { loading: queryLoading, error: queryError, data: queryData } = useQuery(GET_CHI_TIEUS);
+  const { loading: queryLoading, error: queryError, data: queryData, refetch } = useQuery(GET_CHI_TIEUS);
   
   const [formState, setFormState] = useState({
     noi_dung: '',
@@ -76,109 +76,143 @@ function App() {
           }
         }
       });
+      // Refetch query to get the latest data
+      await refetch();
       alert('Chi Tieu created successfully!');
     } catch (err) {
       console.error(err);
     }
   };
  
-  // // Handle loading state
-  // if (queryLoading) return (
-  //   <div className="flex items-center justify-center h-screen">
-  //     <p className="text-xl">Loading...</p>
-  //   </div>
-  // );
+  // Handle loading state
+  if (queryLoading) return (
+    <div className="flex items-center justify-center h-screen">
+      <p className="text-xl">Loading...</p>
+    </div>
+  );
 
-  // // Handle error state
-  // if (queryError) return (
-  //   <div className="flex items-center justify-center h-screen">
-  //     <p className="text-xl text-red-500">Error: {queryError.message}</p>
-  //   </div>
-  // );
+  // Handle error state
+  if (queryError) return (
+    <div className="flex items-center justify-center h-screen">
+      <p className="text-xl text-red-500">Error: {queryError.message}</p>
+    </div>
+  );
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Create Chi Tieu</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Noi Dung</label>
-          <input
-            type="text"
-            name="noi_dung"
-            value={formState.noi_dung}
-            onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Bank Noi Dung</label>
-          <input
-            type="text"
-            name="bank.noi_dung"
-            value={formState.bank.noi_dung}
-            onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Bank ID</label>
-          <input
-            type="text"
-            name="bank.id"
-            value={formState.bank.id}
-            onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Bank ID</label>
-          <input
-            type="text"
-            name="bank_id"
-            value={formState.bank_id}
-            onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">So Tien</label>
-          <input
-            type="text"
-            name="so_tien"
-            value={formState.so_tien}
-            onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Ghi Chu</label>
-          <input
-            type="text"
-            name="ghi_chu"
-            value={formState.ghi_chu}
-            onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
-          />
-        </div>
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded-md shadow-sm"
-          disabled={mutationLoading}
-        >
-          {mutationLoading ? 'Submitting...' : 'Submit'}
-        </button>
-        {mutationError && <p className="text-red-500 mt-2">Error: {mutationError.message}</p>}
-      </form>
-      {mutationData && (
-        <div className="mt-4">
-          <h2 className="text-xl font-bold">Created Chi Tieu</h2>
-          <p>ID: {mutationData.createChiTieu.id}</p>
-          <p>Noi Dung: {mutationData.createChiTieu.noi_dung}</p>
-          <p>So Tien: {mutationData.createChiTieu.so_tien}</p>
-          <p>Ghi Chu: {mutationData.createChiTieu.ghi_chu}</p>
-        </div>
-      )}
+      <div className="grid">
+        <h1 className="text-2xl font-bold mb-4">Create Chi Tieu</h1>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Noi Dung</label>
+            <input
+              type="text"
+              name="noi_dung"
+              value={formState.noi_dung}
+              onChange={handleChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Bank Noi Dung</label>
+            <input
+              type="text"
+              name="bank.noi_dung"
+              value={formState.bank.noi_dung}
+              onChange={handleChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Bank ID</label>
+            <input
+              type="text"
+              name="bank.id"
+              value={formState.bank.id}
+              onChange={handleChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Bank ID</label>
+            <input
+              type="text"
+              name="bank_id"
+              value={formState.bank_id}
+              onChange={handleChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">So Tien</label>
+            <input
+              type="text"
+              name="so_tien"
+              value={formState.so_tien}
+              onChange={handleChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Ghi Chu</label>
+            <input
+              type="text"
+              name="ghi_chu"
+              value={formState.ghi_chu}
+              onChange={handleChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+            />
+          </div>
+          <button
+            type="submit"
+            className="bg-blue-500 text-white px-4 py-2 rounded-md shadow-sm"
+            disabled={mutationLoading}
+          >
+            {mutationLoading ? 'Submitting...' : 'Submit'}
+          </button>
+          {mutationError && <p className="text-red-500 mt-2">Error: {mutationError.message}</p>}
+        </form>
+        {mutationData && (
+          <div className="mt-4">
+            <h2 className="text-xl font-bold">Created Chi Tieu</h2>
+            <p>ID: {mutationData.createChiTieu.id}</p>
+            <p>Noi Dung: {mutationData.createChiTieu.noi_dung}</p>
+            <p>So Tien: {mutationData.createChiTieu.so_tien}</p>
+            <p>Ghi Chu: {mutationData.createChiTieu.ghi_chu}</p>
+          </div>
+        )}
       </div>
+      <div className="grid">
+      <table className="min-w-full border border-gray-300">
+      <thead>
+        <tr className="bg-gray-100">
+          <th className="px-6 py-3 border-b border-gray-300 text-left text-sm font-medium text-gray-600">
+            ID
+          </th>
+          <th className="px-6 py-3 border-b border-gray-300 text-left text-sm font-medium text-gray-600">
+            Nội Dung
+          </th>
+          <th className="px-6 py-3 border-b border-gray-300 text-left text-sm font-medium text-gray-600">
+            Số Tiền
+          </th>
+          <th className="px-6 py-3 border-b border-gray-300 text-left text-sm font-medium text-gray-600">
+            Ghi Chú
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {queryData.data.map((item) => (
+          <tr key={item.id} className="hover:bg-gray-50">
+            <td className="px-6 py-4 border-b border-gray-200 text-sm text-gray-700">{item.id}</td>
+            <td className="px-6 py-4 border-b border-gray-200 text-sm text-gray-700">{item.noi_dung}</td>
+            <td className="px-6 py-4 border-b border-gray-200 text-sm text-gray-700">{item.so_tien}</td>
+            <td className="px-6 py-4 border-b border-gray-200 text-sm text-gray-700">{item.ghi_chu}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+      </div>
+    </div>
   );
 }
 
