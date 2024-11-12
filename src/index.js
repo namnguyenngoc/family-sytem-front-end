@@ -2,7 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css'; // Import Tailwind CSS
-import App from './App';
+import App from './App.tsx';
 import reportWebVitals from './reportWebVitals';
 import { ApolloProvider } from '@apollo/client';
 import client from './apolloClient';
