@@ -21,16 +21,17 @@ export type BankDto = {
   ngay_den_han?: InputMaybe<Scalars['Float']['input']>;
   ngay_sao_ke?: InputMaybe<Scalars['Int']['input']>;
   noi_dung: Scalars['String']['input'];
-  so_tien?: InputMaybe<Scalars['Float']['input']>;
 };
 
 export type BankEntity = {
   __typename?: 'BankEntity';
   chiTieus: Array<ChiTieuEntity>;
+  ghi_chu?: Maybe<Scalars['String']['output']>;
   id: Scalars['Int']['output'];
   ngay_den_han: Scalars['Float']['output'];
   ngay_sao_ke: Scalars['Float']['output'];
   noi_dung: Scalars['String']['output'];
+  so_tien?: Maybe<Scalars['Int']['output']>;
 };
 
 export type ChiTieuDto = {
@@ -69,7 +70,7 @@ export type MutationUpdateChiTieuArgs = {
 
 export type Query = {
   __typename?: 'Query';
-  data: Array<ChiTieuEntity>;
+  data: Array<BankEntity>;
   getChiTieu: ChiTieuEntity;
 };
 
@@ -81,7 +82,7 @@ export type QueryGetChiTieuArgs = {
 export type GetChiTieusQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetChiTieusQuery = { __typename?: 'Query', data: Array<{ __typename?: 'ChiTieuEntity', id: number, noi_dung: string, so_tien: number, ghi_chu: string }> };
+export type GetChiTieusQuery = { __typename?: 'Query', data: Array<{ __typename?: 'BankEntity', id: number, noi_dung: string, so_tien?: number | null, ghi_chu?: string | null }> };
 
 export type CreateChiTieuMutationVariables = Exact<{
   chiTieuDto: ChiTieuDto;

@@ -14,7 +14,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 const documents = {
-    "\n  query GetChiTieus {\n    data {\n        id\n        noi_dung\n        so_tien\n        ghi_chu\n    }\n  }\n": types.GetChiTieusDocument,
+    "\n  query GetChiTieus {\n    data {\n      id\n      noi_dung\n      so_tien\n      ghi_chu\n    }\n  }\n": types.GetChiTieusDocument,
     "\n  mutation CreateChiTieu($chiTieuDto: ChiTieuDto!) {\n    createChiTieu(chiTieuDto: $chiTieuDto) {\n      id\n      noi_dung\n      so_tien\n      ghi_chu\n    }\n  }\n": types.CreateChiTieuDocument,
 };
 
@@ -35,7 +35,7 @@ export function graphql(source: string): unknown;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query GetChiTieus {\n    data {\n        id\n        noi_dung\n        so_tien\n        ghi_chu\n    }\n  }\n"): (typeof documents)["\n  query GetChiTieus {\n    data {\n        id\n        noi_dung\n        so_tien\n        ghi_chu\n    }\n  }\n"];
+export function graphql(source: "\n  query GetChiTieus {\n    data {\n      id\n      noi_dung\n      so_tien\n      ghi_chu\n    }\n  }\n"): (typeof documents)["\n  query GetChiTieus {\n    data {\n      id\n      noi_dung\n      so_tien\n      ghi_chu\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
