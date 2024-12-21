@@ -1,7 +1,7 @@
 import React from 'react';
 // import Label from '@src/components/atoms/Label/Label';
 // import Input from '@src/components/atoms/Input/Input';
-import Button from '@src/components/atoms/Button/Button';
+import Button from '../../atoms/Button/Button';
 
 const FormGroup: React.FC = () => (
   <div>

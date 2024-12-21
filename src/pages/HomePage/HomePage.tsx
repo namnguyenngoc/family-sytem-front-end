@@ -1,7 +1,8 @@
 // src/pages/HomePage/HomePage.tsx
 import React, { useState } from 'react';
 import { useMutation, useQuery, gql } from '@apollo/client';
-import { Container, TextField, Button, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { Container, TextField, Button, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } 
+from '@mui/material';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
@@ -10,7 +11,7 @@ import FormControl from '@mui/material/FormControl';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
 
-const GET_CHI_TIEUS = gql`
+export const GET_CHI_TIEUS = gql`
   query GetChiTieus {
     data {
       id
@@ -21,7 +22,7 @@ const GET_CHI_TIEUS = gql`
   }
 `;
 
-const CREATE_CHI_TIEU = gql`
+export const CREATE_CHI_TIEU = gql`
   mutation CreateChiTieu($chiTieuDto: ChiTieuDto!) {
     createChiTieu(chiTieuDto: $chiTieuDto) {
       id
