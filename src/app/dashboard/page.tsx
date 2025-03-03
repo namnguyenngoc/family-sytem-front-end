@@ -30,42 +30,30 @@ export default function Page(): React.JSX.Element {
       <Grid lg={3} sm={6} xs={12}>
         <TotalProfit sx={{ height: '100%' }} value="$15k" />
       </Grid>
-      <Grid lg={8} xs={12}>
-        <Sales
-          chartSeries={[
-            { name: 'This year', data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20] },
-            { name: 'Last year', data: [12, 11, 4, 6, 2, 9, 9, 10, 11, 12, 13, 13] },
-          ]}
-          sx={{ height: '100%' }}
-        />
-      </Grid>
-      <Grid lg={4} md={6} xs={12}>
-        <Traffic chartSeries={[63, 15, 22]} labels={['Desktop', 'Tablet', 'Phone']} sx={{ height: '100%' }} />
-      </Grid>
       <Grid lg={4} md={6} xs={12}>
         <LatestProducts
           products={[
             {
               id: 'PRD-005',
-              name: 'Soja & Co. Eucalyptus',
+              name: 'Shop ABC trên ticket abcxxxx',
               image: '/assets/product-5.png',
               updatedAt: dayjs().subtract(18, 'minutes').subtract(5, 'hour').toDate(),
             },
             {
               id: 'PRD-004',
-              name: 'Necessaire Body Lotion',
+              name: 'Đơn của AgentC ABC',
               image: '/assets/product-4.png',
               updatedAt: dayjs().subtract(41, 'minutes').subtract(3, 'hour').toDate(),
             },
             {
               id: 'PRD-003',
-              name: 'Ritual of Sakura',
+              name: 'Shople le xxxx',
               image: '/assets/product-3.png',
               updatedAt: dayjs().subtract(5, 'minutes').subtract(3, 'hour').toDate(),
             },
             {
               id: 'PRD-002',
-              name: 'Lancome Rouge',
+              name: 'Đơn abc',
               image: '/assets/product-2.png',
               updatedAt: dayjs().subtract(23, 'minutes').subtract(2, 'hour').toDate(),
             },
@@ -84,42 +72,60 @@ export default function Page(): React.JSX.Element {
           orders={[
             {
               id: 'ORD-007',
-              customer: { name: 'Ekaterina Tankova' },
+              brank: {
+                name: 'Cicook',
+              },
+              product: { name: 'Combo 2 lon sốt lẩu chua cay' },
               amount: 30.5,
               status: 'pending',
               createdAt: dayjs().subtract(10, 'minutes').toDate(),
             },
             {
               id: 'ORD-006',
-              customer: { name: 'Cao Yu' },
+              brank: {
+                name: 'Mood choco',
+              },
+              product: { name: 'socola đen' },
               amount: 25.1,
               status: 'delivered',
               createdAt: dayjs().subtract(10, 'minutes').toDate(),
             },
             {
               id: 'ORD-004',
-              customer: { name: 'Alexa Richardson' },
+              brank: {
+                name: 'Cer',
+              },
+              product: { name: 'Kẹo dẻo Kera (combo 2 hộp)' },
               amount: 10.99,
               status: 'refunded',
               createdAt: dayjs().subtract(10, 'minutes').toDate(),
             },
             {
               id: 'ORD-003',
-              customer: { name: 'Anje Keizer' },
+              brank: {
+                name: 'Happy vitamin',
+              },
+              product: { name: 'Kẹo dẻo biotin (mua 2 tặng 1)' },
               amount: 96.43,
               status: 'pending',
               createdAt: dayjs().subtract(10, 'minutes').toDate(),
             },
             {
               id: 'ORD-002',
-              customer: { name: 'Clarke Gillebert' },
+              brank: {
+                name: 'Mavin',
+              },
+              product: { name: 'Lạp xưởng tươi vị hongkong' },
               amount: 32.54,
               status: 'delivered',
               createdAt: dayjs().subtract(10, 'minutes').toDate(),
             },
             {
               id: 'ORD-001',
-              customer: { name: 'Adam Denisov' },
+              brank: {
+                name: 'One more bite (King Road)',
+              },
+              product: { name: 'Lạp xưởng tươi loại đặc biệt' },
               amount: 16.76,
               status: 'delivered',
               createdAt: dayjs().subtract(10, 'minutes').toDate(),
@@ -127,6 +133,18 @@ export default function Page(): React.JSX.Element {
           ]}
           sx={{ height: '100%' }}
         />
+      </Grid>
+      <Grid lg={8} xs={12}>
+        <Sales
+          chartSeries={[
+            { name: 'This year', data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20] },
+            { name: 'Last year', data: [12, 11, 4, 6, 2, 9, 9, 10, 11, 12, 13, 13] },
+          ]}
+          sx={{ height: '100%' }}
+        />
+      </Grid>
+      <Grid lg={4} md={6} xs={12}>
+        <Traffic chartSeries={[63, 15, 22]} labels={['Desktop', 'Tablet', 'Phone']} sx={{ height: '100%' }} />
       </Grid>
     </Grid>
   );
