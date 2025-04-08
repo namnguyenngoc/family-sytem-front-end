@@ -1,3 +1,5 @@
+"use client";  // Ensure this component runs in the browser
+
 import React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -18,6 +20,27 @@ import { XCircle as XCircle } from '@phosphor-icons/react/dist/ssr/XCircle';
 import dayjs from 'dayjs';
 import { UserCheck as UserCheck } from '@phosphor-icons/react/dist/ssr/UserCheck';
 import { ChatCentered as ChatCentered } from '@phosphor-icons/react/dist/ssr/ChatCentered';
+
+import { useQuery, gql } from '@apollo/client';
+
+const GET_TASK_LIST = gql`
+  query GetTaskInfos {
+    getTaskInfos {
+      ghi_chu
+      id
+      nen_tang_xa_hoi
+      ngay_air
+      ngay_chot_don
+      ngay_demo
+      ngay_giao_hang
+      ngay_hen_giao_san_pham
+      nhom_trang_thai
+      ten_brand
+      ten_sanpham
+      trang_thai
+    }
+  }
+`;
 
 const statusMap = {
   pending: { label: 'Đang Dựng', color: 'warning' },
@@ -41,18 +64,22 @@ export interface LatestProductsProps {
 
 export function LatestProducts({ products = [], sx }: LatestProductsProps): React.JSX.Element {
   // const { label, color } = statusMap["Đang Dựng"] ?? { label: 'Đã Giao', color: 'success' };
+  const { loading, error, data } = useQuery(GET_TASK_LIST);
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
   return (
     <Card sx={sx}>
       <CardHeader title="Đơn hàng mới" />
       <Divider />
       <List>
-        {products.map((product, index) => (
+        {data.getTaskInfos.map((item, index) => (
 
-          <ListItem divider={index < products.length - 1} key={product.id}>
+          <ListItem divider={index < item.length - 1} key={item.id}>
             <ListItemAvatar>
               {
-              product.image ? (
-                <Box component="img" src={product.image} sx={{ borderRadius: 1, height: '48px', width: '48px' }} />
+              item.image ? (
+                <Box component="img" src={item.image} sx={{ borderRadius: 1, height: '48px', width: '48px' }} />
               ) : (
                 <Box
                   sx={{
@@ -65,9 +92,9 @@ export function LatestProducts({ products = [], sx }: LatestProductsProps): Reac
               )}
             </ListItemAvatar>
             <ListItemText
-              primary={product.name}
+              primary={item.ten_brand}
               primaryTypographyProps={{ variant: 'subtitle1' }}
-              secondary={`Updated ${dayjs(product.updatedAt).format('MMM D, YYYY')}`}
+              secondary={`Updated ${dayjs(item.ngay_chot_don).format('MMM D, YYYY')}`}
               secondaryTypographyProps={{ variant: 'body2' }}
             />
               <IconButton size="large">

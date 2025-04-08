@@ -8,4 +8,6 @@ export const navItems = [
   { key: 'settings', title: 'Settings', href: paths.dashboard.settings, icon: 'gear-six' },
   { key: 'account', title: 'Account', href: paths.dashboard.account, icon: 'user' },
   { key: 'error', title: 'Error', href: paths.errors.notFound, icon: 'x-square' },
+  { key: 'TaskList', title: 'Task List', href: paths.dashboard.tasks, icon: 'user' },
+
 ] satisfies NavItemConfig[];
