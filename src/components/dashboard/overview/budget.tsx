@@ -14,9 +14,13 @@ export interface BudgetProps {
   trend: 'up' | 'down';
   sx?: SxProps;
   value: string;
+  summamryTaskInfo?: {
+    nhomTrangThai: string,
+    count: number;
+  }
 }
 
-export function Budget({ diff, trend, sx, value }: BudgetProps): React.JSX.Element {
+export function Budget({ diff, trend, sx, value, summamryTaskInfo }: BudgetProps): React.JSX.Element {
   const TrendIcon = trend === 'up' ? ArrowUpIcon : ArrowDownIcon;
   const trendColor = trend === 'up' ? 'var(--mui-palette-success-main)' : 'var(--mui-palette-error-main)';
 
@@ -30,7 +34,7 @@ export function Budget({ diff, trend, sx, value }: BudgetProps): React.JSX.Eleme
                 Đơn hàng mới
               </Typography>
               <Typography variant="h4">
-                {diff} đơn
+                {summamryTaskInfo?.count} đơn
               </Typography>
               <Typography variant="h6">
                 Shop: {10}    AgentC: {14} 

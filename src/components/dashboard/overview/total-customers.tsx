@@ -14,9 +14,14 @@ export interface TotalCustomersProps {
   trend: 'up' | 'down';
   sx?: SxProps;
   value: string;
+  summamryTaskInfo?: {
+    nhomTrangThai: string,
+    count: number;
+  }
+
 }
 
-export function TotalCustomers({ diff, trend, sx, value }: TotalCustomersProps): React.JSX.Element {
+export function TotalCustomers({ diff, trend, sx, value, summamryTaskInfo }: TotalCustomersProps): React.JSX.Element {
   const TrendIcon = trend === 'up' ? ArrowUpIcon : ArrowDownIcon;
   const trendColor = trend === 'up' ? 'var(--mui-palette-success-main)' : 'var(--mui-palette-error-main)';
 
@@ -27,9 +32,9 @@ export function TotalCustomers({ diff, trend, sx, value }: TotalCustomersProps):
           <Stack direction="row" sx={{ alignItems: 'flex-start', justifyContent: 'space-between' }} spacing={3}>
             <Stack spacing={1}>
               <Typography color="text.secondary" variant="overline">
-                Quay clip
+                {summamryTaskInfo?.nhomTrangThai}
               </Typography>
-              <Typography variant="h4">{16} clip</Typography>
+              <Typography variant="h4">{summamryTaskInfo?.count} clip</Typography>
             </Stack>
             <Avatar sx={{ backgroundColor: 'var(--mui-palette-primary-main)', height: '56px', width: '56px' }}>
               <Record fontSize="var(--icon-fontSize-lg)" />

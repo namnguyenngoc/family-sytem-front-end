@@ -1,4 +1,4 @@
-"use client";  // Ensure this component runs in the browser
+// "use client";  // Ensure this component runs in the browser
 
 import React from 'react';
 import Box from '@mui/material/Box';
@@ -21,26 +21,26 @@ import dayjs from 'dayjs';
 import { UserCheck as UserCheck } from '@phosphor-icons/react/dist/ssr/UserCheck';
 import { ChatCentered as ChatCentered } from '@phosphor-icons/react/dist/ssr/ChatCentered';
 
-import { useQuery, gql } from '@apollo/client';
+// import { useQuery, gql } from '@apollo/client';
 
-const GET_TASK_LIST = gql`
-  query GetTaskInfos {
-    getTaskInfos {
-      ghi_chu
-      id
-      nen_tang_xa_hoi
-      ngay_air
-      ngay_chot_don
-      ngay_demo
-      ngay_giao_hang
-      ngay_hen_giao_san_pham
-      nhom_trang_thai
-      ten_brand
-      ten_sanpham
-      trang_thai
-    }
-  }
-`;
+// const GET_TASK_LIST = gql`
+//   query GetTaskInfos {
+//     getTaskInfos {
+//       ghi_chu
+//       id
+//       nen_tang_xa_hoi
+//       ngay_air
+//       ngay_chot_don
+//       ngay_demo
+//       ngay_giao_hang
+//       ngay_hen_giao_san_pham
+//       nhom_trang_thai
+//       ten_brand
+//       ten_sanpham
+//       trang_thai
+//     }
+//   }
+// `;
 
 const statusMap = {
   pending: { label: 'Đang Dựng', color: 'warning' },
@@ -49,31 +49,39 @@ const statusMap = {
 } as const;
 
 
-export interface Product {
-  id: string;
-  image: string;
-  name: string;
-  updatedAt: Date;
+export interface TaskInfo {
+  id: string,
+  ten_brand: string,
+  ten_sanpham: string,
+  nen_tang_xa_hoi: string,
+  trang_thai: string,
+  nhom_trang_thai: string,
+  ngay_chot_don: Date,
+  ngay_hen_giao_san_pham: Date,
+  ngay_giao_hang: Date,
+  ngay_demo: Date,
+  ngay_air: Date,
+  ghi_chu: string,
 }
 
 export interface LatestProductsProps {
-  products?: Product[];
+  data?: TaskInfo[];
   sx?: SxProps;
 }
 
 
-export function LatestProducts({ products = [], sx }: LatestProductsProps): React.JSX.Element {
+export function LatestProducts({ data = [], sx }: LatestProductsProps): React.JSX.Element {
   // const { label, color } = statusMap["Đang Dựng"] ?? { label: 'Đã Giao', color: 'success' };
-  const { loading, error, data } = useQuery(GET_TASK_LIST);
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
+  // const { loading, error, data } = useQuery(GET_TASK_LIST);
+  // if (loading) return <p>Loading...</p>;
+  // if (error) return <p>Error: {error.message}</p>;
 
   return (
     <Card sx={sx}>
       <CardHeader title="Đơn hàng mới" />
       <Divider />
       <List>
-        {data.getTaskInfos.map((item, index) => (
+        {data.map((item, index) => (
 
           <ListItem divider={index < item.length - 1} key={item.id}>
             <ListItemAvatar>

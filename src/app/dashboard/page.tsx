@@ -1,3 +1,5 @@
+"use client";  // Ensure this component runs in the browser
+
 import * as React from 'react';
 import type { Metadata } from 'next';
 import Grid from '@mui/material/Unstable_Grid2';
@@ -12,17 +14,66 @@ import { TasksProgress } from '@/components/dashboard/overview/tasks-progress';
 import { TotalCustomers } from '@/components/dashboard/overview/total-customers';
 import { TotalProfit } from '@/components/dashboard/overview/total-profit';
 import { Traffic } from '@/components/dashboard/overview/traffic';
+import { useQuery, gql } from '@apollo/client';
 
-export const metadata = { title: `Overview | Dashboard | ${config.site.name}` } satisfies Metadata;
+// export const metadata = { title: `Overview | Dashboard | ${config.site.name}` } satisfies Metadata;
+
+const GET_TASK_LIST = gql`
+  query GetTaskInfos {
+    getTaskInfos {
+      ghi_chu
+      id
+      nen_tang_xa_hoi
+      ngay_air
+      ngay_chot_don
+      ngay_demo
+      ngay_giao_hang
+      ngay_hen_giao_san_pham
+      nhom_trang_thai
+      ten_brand
+      ten_sanpham
+      trang_thai
+    }
+  }
+`;
+
+const GET_SUMMARY_TASK_INFO = gql`
+  query SummaryTaskInfo {
+    summaryTaskInfo {
+      nhomTrangThai
+      count
+      taskList {
+        ten_brand
+        ten_sanpham
+        trang_thai
+        nhom_trang_thai
+      }
+    }
+  }
+`;
 
 export default function Page(): React.JSX.Element {
+  const { loading: loadingTaskList, error: errorTaskList, data: dataTaskList } = useQuery(GET_TASK_LIST);
+  const { loading: loadingSummary, error: errorSummary, data: dataSummary } = useQuery(GET_SUMMARY_TASK_INFO);
+
+  if (loadingSummary) return <p>Loading summary...</p>;
+  if (errorSummary) return <p>Error loading summary: {errorSummary.message}</p>;
+
   return (
     <Grid container spacing={3}>
       <Grid lg={3} sm={6} xs={12}>
-        <Budget diff={12} trend="up" sx={{ height: '100%' }} value="$24k" />
+        <Budget diff={12} trend="up" sx={{ height: '100%' }} value="$24k" 
+          summamryTaskInfo= {dataSummary.summaryTaskInfo.filter((item: { nhomTrangThai: string }) => item.nhomTrangThai === 'NHAN_DON')[0]}
+        />
       </Grid>
       <Grid lg={3} sm={6} xs={12}>
-        <TotalCustomers diff={16} trend="down" sx={{ height: '100%' }} value="1.6k" />
+        <TotalCustomers 
+          diff={16} 
+          trend="down" 
+          sx={{ height: '100%' }} 
+          value="1.6k" 
+          summamryTaskInfo= {dataSummary.summaryTaskInfo.filter((item: { nhomTrangThai: string }) => item.nhomTrangThai === 'DUNG_CLIP')[0]}
+        />
       </Grid>
       <Grid lg={3} sm={6} xs={12}>
         <TasksProgress sx={{ height: '100%' }} value={75.5} />
@@ -32,38 +83,7 @@ export default function Page(): React.JSX.Element {
       </Grid>
       <Grid lg={4} md={6} xs={12}>
         <LatestProducts
-          products={[
-            {
-              id: 'PRD-005',
-              name: 'Shop ABC trên ticket abcxxxx',
-              image: '/assets/product-5.png',
-              updatedAt: dayjs().subtract(18, 'minutes').subtract(5, 'hour').toDate(),
-            },
-            {
-              id: 'PRD-004',
-              name: 'Đơn của AgentC ABC',
-              image: '/assets/product-4.png',
-              updatedAt: dayjs().subtract(41, 'minutes').subtract(3, 'hour').toDate(),
-            },
-            {
-              id: 'PRD-003',
-              name: 'Shople le xxxx',
-              image: '/assets/product-3.png',
-              updatedAt: dayjs().subtract(5, 'minutes').subtract(3, 'hour').toDate(),
-            },
-            {
-              id: 'PRD-002',
-              name: 'Đơn abc',
-              image: '/assets/product-2.png',
-              updatedAt: dayjs().subtract(23, 'minutes').subtract(2, 'hour').toDate(),
-            },
-            {
-              id: 'PRD-001',
-              name: 'Erbology Aloe Vera',
-              image: '/assets/product-1.png',
-              updatedAt: dayjs().subtract(10, 'minutes').toDate(),
-            },
-          ]}
+          data={ [...(dataTaskList?.getTaskInfos || [])] }
           sx={{ height: '100%' }}
         />
       </Grid>
@@ -146,6 +166,6 @@ export default function Page(): React.JSX.Element {
       <Grid lg={4} md={6} xs={12}>
         <Traffic chartSeries={[63, 15, 22]} labels={['Desktop', 'Tablet', 'Phone']} sx={{ height: '100%' }} />
       </Grid>
-    </Grid>
+          </Grid>
   );
 }
