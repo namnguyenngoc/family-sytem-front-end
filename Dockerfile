@@ -1,15 +1,14 @@
-# Dockerfile
-FROM node:14-alpine
-
+# step 1: build
+FROM node:18-alpine AS builder
 WORKDIR /app
-
-COPY package*.json ./
-RUN npm install
-
 COPY . .
+RUN yarn install && yarn build
 
-RUN npm run build
+# step 2: run
+FROM node:18-alpine
+WORKDIR /app
+COPY --from=builder /app ./
+EXPOSE 3100
+CMD ["yarn", "start"]
 
-EXPOSE 3001
-
-CMD ["npm", "start"]
+# docker build -t itnguyennam276/fsys-frontend-app:latest .

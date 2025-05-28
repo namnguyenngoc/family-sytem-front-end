@@ -55,10 +55,10 @@ export function TaskDetailForm(): React.JSX.Element {
   });
 
   const [createTask, { loading, error }] = useMutation(CREATE_TASK);
-  const handleChange = (e) => {
+  const handleChange = (e: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  const handleDateChange = (name, date) => {
+  const handleDateChange = (name: any, date: any) => {
     setFormData({ ...formData, [name]: date });
   };
 

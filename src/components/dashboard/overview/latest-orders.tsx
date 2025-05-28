@@ -61,6 +61,15 @@ const GET_TASK_LIST_2 = gql`
   }
 `;
 
+interface TaskInfo {
+  id: number;
+  ten_brand: string;
+  ten_sanpham: string;
+  ngay_demo: string;
+  trang_thai: string;
+}
+
+
 export interface LatestOrdersProps {
   orders?: Order[];
   sx?: SxProps;
@@ -68,6 +77,7 @@ export interface LatestOrdersProps {
 
 export function LatestOrders({ orders = [], sx }: LatestOrdersProps): React.JSX.Element {
   const nhomTrangThai = "NHAN_DON"; // Replace with the actual value or state
+
   const { loading, error, data } = useQuery(GET_TASK_LIST_2, {
     variables: { nhomTrangThai },
   });
@@ -91,7 +101,7 @@ export function LatestOrders({ orders = [], sx }: LatestOrdersProps): React.JSX.
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.getTaskInfos.map((item, index) => (
+            {data.getTaskInfos.map((item: any, index: number) => (
               <TableRow hover key={item.id}>
                 <TableCell>{item.id}</TableCell>
                 <TableCell>{item.ten_brand}</TableCell>

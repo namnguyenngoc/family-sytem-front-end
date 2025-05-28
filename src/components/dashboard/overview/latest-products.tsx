@@ -62,6 +62,7 @@ export interface TaskInfo {
   ngay_demo: Date,
   ngay_air: Date,
   ghi_chu: string,
+  image?: string,
 }
 
 export interface LatestProductsProps {
@@ -83,7 +84,7 @@ export function LatestProducts({ data = [], sx }: LatestProductsProps): React.JS
       <List>
         {data.map((item, index) => (
 
-          <ListItem divider={index < item.length - 1} key={item.id}>
+          <ListItem divider={index < data.length - 1} key={item.id}>
             <ListItemAvatar>
               {
               item.image ? (
