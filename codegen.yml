@@ -1,9 +1,0 @@
-// codegen.yml
-schema: http://localhost:9002/graphql
-documents: src/**/*.graphql
-generates:
-  src/generated/graphql.ts:
-    plugins:
-      - typescript
-      - typescript-operations
-      - typescript-react-apollo
