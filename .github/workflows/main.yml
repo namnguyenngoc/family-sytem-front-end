@@ -1,0 +1,47 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: FSYS Front End CI
+
+on:
+  push:
+    branches: [ "develop-manager-video" ]
+  pull_request:
+    branches: [ "develop-manager-video" ]
+
+jobs:
+  build:
+    runs-on: FSYS_FRONTEND_RUNNER
+    steps:
+      - name: Checkout develop-manager-video branch
+        uses: actions/checkout@v3
+        with:
+          ref: develop-manager-video
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Load .env file
+        uses: xom9ikk/dotenv@v2
+
+      - name: Build Docker image
+        run: docker build -t ${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_APP_NAME }}:${{ github.sha }} .
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ env.DOCKERHUB_USERNAME }} --password-stdin
+
+      - name: Push Docker image
+        run: docker push ${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_APP_NAME }}:${{ github.sha }}
+
+      - name: Deploy to Kubernetes
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          K8S_DEPLOYMENT_NAME: ${{ env.K8S_DEPLOYMENT_NAME }}
+          K8S_CONTAINER_NAME: ${{ env.K8S_CONTAINER_NAME }}
+          K8S_NAMESPACE: ${{ env.K8S_NAMESPACE }}
+          DOCKERHUB_USERNAME: ${{ env.DOCKERHUB_USERNAME }}
+          DOCKERHUB_APP_NAME: ${{ env.DOCKERHUB_APP_NAME }}
+        run: |
+          kubectl set image deployment/${K8S_DEPLOYMENT_NAME} ${K8S_CONTAINER_NAME}=${DOCKERHUB_USERNAME}/${DOCKERHUB_APP_NAME}:${IMAGE_TAG} -n ${K8S_NAMESPACE}
