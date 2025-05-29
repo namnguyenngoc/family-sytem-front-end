@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: FSYS_FRONTEND_RUNNER
     steps:
       - name: Checkout develop-manager-video branch
         uses: actions/checkout@v3
