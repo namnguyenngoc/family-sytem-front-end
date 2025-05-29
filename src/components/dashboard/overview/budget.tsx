@@ -54,7 +54,7 @@ export function Budget({ diff, trend, sx, value, summamryTaskInfo }: BudgetProps
                 </Typography>
               </Stack>
               <Typography color="text.secondary" variant="caption">
-                Since last month
+                Since last month []Test CICD]
               </Typography>
             </Stack>
           ) : null}
