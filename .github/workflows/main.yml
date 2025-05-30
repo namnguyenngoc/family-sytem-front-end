@@ -43,5 +43,6 @@ jobs:
           K8S_NAMESPACE: ${{ env.K8S_NAMESPACE }}
           DOCKERHUB_USERNAME: ${{ env.DOCKERHUB_USERNAME }}
           DOCKERHUB_APP_NAME: ${{ env.DOCKERHUB_APP_NAME }}
+          PORT: 30901
         run: |
           kubectl set image deployment/${K8S_DEPLOYMENT_NAME} ${K8S_CONTAINER_NAME}=${DOCKERHUB_USERNAME}/${DOCKERHUB_APP_NAME}:${IMAGE_TAG} -n ${K8S_NAMESPACE}
