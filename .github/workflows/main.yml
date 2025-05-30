@@ -9,6 +9,9 @@ on:
   pull_request:
     branches: [ "develop-manager-video" ]
 
+env:
+  NEXT_PUBLIC_GRAPHQL_URI: http://cameranamnguyentch.ddns.net:9000/graphql
+
 jobs:
   build:
     runs-on: FSYS_FRONTEND_RUNNER
