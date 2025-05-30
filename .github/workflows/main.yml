@@ -28,7 +28,9 @@ jobs:
 
       - name: Load .env file
         uses: xom9ikk/dotenv@v2
-
+      - name: Disable Docker credential store (fix for login error)
+        run: mkdir -p ~/.docker && echo '{"credsStore":""}' > ~/.docker/config.json
+        
       - name: Build Docker image
         run: docker build -t ${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_APP_NAME }}:${{ github.sha }} .
 
