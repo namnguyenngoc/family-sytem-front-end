@@ -8,7 +8,7 @@ RUN yarn install && yarn build
 FROM node:18-alpine
 WORKDIR /app
 COPY --from=builder /app ./
-EXPOSE 3100
+EXPOSE 30901
 CMD ["yarn", "start"]
 
 # docker build -t itnguyennam276/fsys-frontend-app:latest .
