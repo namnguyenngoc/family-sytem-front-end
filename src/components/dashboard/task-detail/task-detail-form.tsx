@@ -15,6 +15,8 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import Select from '@mui/material/Select';
 import Grid from '@mui/material/Unstable_Grid2';
 import { gql, useMutation } from '@apollo/client';
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
 
 const states = [
   { value: 'alabama', label: 'Alabama' },
@@ -44,6 +46,10 @@ export function TaskDetailForm(): React.JSX.Element {
   
   const [formData, setFormData] = useState({
     ten_brand: "",
+    ten_sanpham: "",
+    ghi_chu: "",
+    nen_tang_xa_hoi: "",
+    trang_thai: "",
     ngay_chot_don: null,
     ngay_demo: null,
     ngay_giao_hang: null,
@@ -86,28 +92,41 @@ export function TaskDetailForm(): React.JSX.Element {
       <Card>
         <CardHeader subheader="Thông tin về sản phẩm" title="Thông tin" />
         <Divider />
-        <CardContent>
-          <Grid container spacing={3}>
+        <CardContent sx={{ pt: 3, pr: 2, pl: 2 }}>
+          <Grid container spacing={2}>
             <Grid md={12} xs={12}>
               <FormControl fullWidth required>
-                <InputLabel>Tên sản phẩm</InputLabel>
-                <OutlinedInput name="ten_brand" value={formData.ten_brand} onChange={handleChange} />
-                <OutlinedInput defaultValue="" label="Tên sản phẩm" name="ten_sanpham" />
+                <InputLabel shrink>Tên sản phẩm</InputLabel>
+                <OutlinedInput  defaultValue="" name="ten_sanpham" value={formData.ten_sanpham}/>
               </FormControl>
             </Grid>
             <Grid md={12} xs={12}>
-              <FormControl fullWidth required>
-                <InputLabel>Brand</InputLabel>
-                <OutlinedInput name="ten_brand" value={formData.ten_brand} onChange={handleChange} />
-              </FormControl>
+             <FormControl fullWidth required>
+              <InputLabel shrink>Brand</InputLabel>
+              <Autocomplete
+                freeSolo
+                options={states.map((option) => option.label)}
+                value={formData.ten_brand}
+                onChange={(_, newValue) => setFormData({ ...formData, ten_brand: newValue || '' })}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    name="ten_brand"
+                    label="Brand"
+                    value={formData.ten_brand}
+                    onChange={handleChange}
+                  />
+                )}
+              />
+            </FormControl>
             </Grid>
             <Grid md={12} xs={12}>
               <FormControl fullWidth required>
-                <InputLabel>Nội dung</InputLabel>
+                <InputLabel>Ghi chú</InputLabel>
                 <OutlinedInput defaultValue="" label="Last name" name="NoiDung" />
               </FormControl>
             </Grid>
-            <Grid md={5} xs={5}>
+            <Grid md={5} xs={12}>
               <FormControl fullWidth required>
                 <DateTimePicker
                     label="Ngày chốt đơn"
@@ -116,37 +135,43 @@ export function TaskDetailForm(): React.JSX.Element {
                   />
               </FormControl>
             </Grid>
-            <Grid md={5} xs={5}>
+            <Grid md={5} xs={8}>
               <FormControl fullWidth required>
                 <DateTimePicker
-                  label="Ngày Demo"
+                  label="Ngày demo"
                   value={formData.ngay_demo}
                   onChange={(date) => { handleDateChange("ngay_demo", date); }}
                 />
               </FormControl>
             </Grid>
-            <Grid md={2} xs={2}>
+            <Grid md={2} xs={4}>
               <FormControl fullWidth required>
-                <InputLabel>Tổng time (hour)</InputLabel>
-                <OutlinedInput defaultValue="Rivers" label="Last name" name="lastName" />
+                <InputLabel>Tổng</InputLabel>
+                <OutlinedInput defaultValue="0" label="" name="" />
               </FormControl>
             </Grid>
-            <Grid md={6} xs={12}>
+            <Grid md={5} xs={6}>
               <FormControl fullWidth required>
-                <InputLabel>Email address</InputLabel>
-                <OutlinedInput defaultValue="sofia@devias.io" label="Email address" name="email" />
+                <DateTimePicker
+                  label="Ngày xuất video"
+                  value={formData.ngay_xuat_video}
+                  onChange={(date) => { handleDateChange("ngay_xuat_video", date); }}
+                />
               </FormControl>
-            </Grid>
+            </Grid>       
+            <Grid md={5} xs={6}>
+              <FormControl fullWidth required>
+                <DateTimePicker
+                  label="Ngày giao hàng"
+                  value={formData.ngay_giao_hang}
+                  onChange={(date) => { handleDateChange("ngay_giao_hang", date); }}
+                />
+              </FormControl>
+            </Grid>            
             <Grid md={6} xs={12}>
               <FormControl fullWidth>
-                <InputLabel>Phone number</InputLabel>
-                <OutlinedInput label="Phone number" name="phone" type="tel" />
-              </FormControl>
-            </Grid>
-            <Grid md={6} xs={12}>
-              <FormControl fullWidth>
-                <InputLabel>State</InputLabel>
-                <Select defaultValue="New York" label="State" name="state" variant="outlined">
+                <InputLabel>Trạng thái</InputLabel>
+                <Select defaultValue="New York" label="Trạng thái" name="status" variant="outlined">
                   {states.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
                       {option.label}
@@ -155,20 +180,24 @@ export function TaskDetailForm(): React.JSX.Element {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid md={6} xs={12}>
-              <FormControl fullWidth>
-                <InputLabel>City</InputLabel>
-                <OutlinedInput label="City" />
-              </FormControl>
-            </Grid>
+           
           </Grid>
         </CardContent>
         <Divider />
         <CardActions sx={{ justifyContent: 'flex-end' }}>
           <Button 
             variant="contained"
+            color='error'
             onClick={handleSave}
-          >Save</Button>
+          >
+            Hủy
+          </Button>
+          <Button 
+            variant="contained"
+            onClick={handleSave}
+          >
+            Lưu
+          </Button>
         </CardActions>
       </Card>
     </form>

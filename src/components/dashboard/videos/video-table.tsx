@@ -15,6 +15,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import dayjs from 'dayjs';
+import { useReactTable, getCoreRowModel, flexRender, ColumnDef } from '@tanstack/react-table';
 
 import { useSelection } from '@/hooks/use-selection';
 
@@ -44,12 +45,69 @@ interface VideoTableProps {
   rowsPerPage?: number;
 }
 
+const columns: ColumnDef<VideoItem>[] = [
+  {
+    id: 'select',
+    header: ({ table }) => (
+      <Checkbox
+        checked={table.getIsAllRowsSelected()}
+        indeterminate={table.getIsSomeRowsSelected()}
+        onChange={table.getToggleAllRowsSelectedHandler()}
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        indeterminate={row.getIsSomeSelected()}
+        onChange={row.getToggleSelectedHandler()}
+      />
+    ),
+    size: 48,
+    enableSorting: false,
+    enableColumnFilter: false,
+  },
+  {
+    accessorKey: 'ten_sanpham',
+    header: 'SẢN PHẨM',
+    cell: info => info.getValue(),
+  },
+  {
+    accessorKey: 'nhom_trang_thai',
+    header: 'TRẠNG THÁI',
+    cell: info => info.getValue(),
+  },
+  {
+    accessorKey: 'ngay_demo',
+    header: 'NGÀY GIAO',
+    cell: info => info.row.original.ngay_demo
+      ? dayjs(info.row.original.ngay_demo).format('DD/MM/YYYY')
+      : 'Chưa có',
+  },
+  {
+    accessorKey: 'ten_brand',
+    header: 'BRANCH',
+    cell: info => info.getValue(),
+  },
+  {
+    accessorKey: 'nen_tang_xa_hoi',
+    header: 'KÊNH',
+    cell: info => info.getValue(),
+  },
+];
+
 export function VideoTable({
   count = 0,
   rows = [],
   page = 0,
   rowsPerPage = 0,
 }: VideoTableProps): React.JSX.Element {
+
+  const table = useReactTable({
+    data: rows,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
   const rowIds = React.useMemo(() => {
     return rows.map((customer) => customer.id);
   }, [rows]);
@@ -64,60 +122,26 @@ export function VideoTable({
       <Box sx={{ overflowX: 'auto' }}>
         <Table sx={{ minWidth: '800px' }}>
           <TableHead>
-            <TableRow>
-              <TableCell padding="checkbox">
-                <Checkbox
-                  checked={selectedAll}
-                  indeterminate={selectedSome}
-                  onChange={(event) => {
-                    if (event.target.checked) {
-                      selectAll();
-                    } else {
-                      deselectAll();
-                    }
-                  }}
-                />
-              </TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Location</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Signed Up</TableCell>
-            </TableRow>
+            {table.getHeaderGroups().map(headerGroup => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map(header => (
+                  <TableCell key={header.id}>
+                    {flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
           </TableHead>
           <TableBody>
-            {rows.map((row) => {
-              const isSelected = selected?.has(row.id);
-
-              return (
-                <TableRow hover key={row.id} selected={isSelected}>
-                  <TableCell padding="checkbox">
-                    <Checkbox
-                      checked={isSelected}
-                      onChange={(event) => {
-                        if (event.target.checked) {
-                          selectOne(row.id);
-                        } else {
-                          deselectOne(row.id);
-                        }
-                      }}
-                    />
+            {table.getRowModel().rows.map(row => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map(cell => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
-                  <TableCell>
-                    <Stack sx={{ alignItems: 'center' }} direction="row" spacing={2}>
-                      <Avatar src='/assets/avatar-10.png' />
-                      <Typography variant="subtitle2">{row.ten_sanpham}</Typography>
-                    </Stack>
-                  </TableCell>
-                  <TableCell>{row.ten_brand}</TableCell>
-                  <TableCell>
-                   {row.nen_tang_xa_hoi }
-                  </TableCell>
-                  <TableCell>{row.nhom_trang_thai}</TableCell>
-                  <TableCell>{dayjs(row.ngay_demo).format('MMM D, YYYY')}</TableCell>
-                </TableRow>
-              );
-            })}
+                ))}
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </Box>
