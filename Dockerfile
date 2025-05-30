@@ -9,6 +9,6 @@ FROM node:18-alpine
 WORKDIR /app
 COPY --from=builder /app ./
 EXPOSE 30901
-CMD ["next", "start", "-p", "30901"]
+CMD ["npx", "next", "start", "-p", "30901"]
 
 # docker build -t itnguyennam276/fsys-frontend-app:latest .
