@@ -11,6 +11,8 @@ on:
 
 env:
   NEXT_PUBLIC_GRAPHQL_URI: http://cameranamnguyentch.ddns.net:9000/graphql
+  # NEXT_PUBLIC_GRAPHQL_URI: ${{ github.ref_name == 'main' && 'https://prod-api/graphql' || 'http://staging-api/graphql' }}
+
 
 jobs:
   build:
@@ -32,7 +34,10 @@ jobs:
         run: mkdir -p ~/.docker && echo '{"credsStore":""}' > ~/.docker/config.json
         
       - name: Build Docker image
-        run: docker build -t ${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_APP_NAME }}:${{ github.sha }} .
+        run: |
+          docker build \
+            --build-arg NEXT_PUBLIC_GRAPHQL_URI=${{ env.NEXT_PUBLIC_GRAPHQL_URI }} \
+            -t ${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_APP_NAME }}:${{ github.sha }} .
 
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ env.DOCKERHUB_USERNAME }} --password-stdin

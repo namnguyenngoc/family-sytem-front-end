@@ -2,6 +2,10 @@
 FROM node:18-alpine AS builder
 WORKDIR /app
 COPY . .
+# Inject biến tại build-time
+ARG NEXT_PUBLIC_GRAPHQL_URI
+ENV NEXT_PUBLIC_GRAPHQL_URI=$NEXT_PUBLIC_GRAPHQL_URI
+
 RUN yarn install && yarn build
 
 # step 2: run
