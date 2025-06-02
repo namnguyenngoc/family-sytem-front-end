@@ -52,6 +52,7 @@ const GET_TASK_LIST = gql`
       ten_brand
       ten_sanpham
       trang_thai
+      remaining_time
     }
   }
 `;
@@ -94,8 +95,7 @@ export default function Page(): React.JSX.Element {
       </Stack>
       
       <VideoFilters />
-      <VideosAction />
-      
+    
       <VideoTable
         count={paginatedCustomers.length}
         page={page}

@@ -39,7 +39,15 @@ declare module '@mui/material/styles/createPalette' {
 export function createTheme(): Theme {
   const theme = extendTheme({
     breakpoints: { values: { xs: 0, sm: 600, md: 900, lg: 1200, xl: 1440 } },
-    components,
+    components: {
+      MuiTableCell: {
+      styleOverrides: {
+        root: {
+          padding: '8px',
+        },
+      },
+    },
+    },
     colorSchemes,
     shadows,
     shape: { borderRadius: 8 },
