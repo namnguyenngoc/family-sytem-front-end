@@ -53,7 +53,7 @@ interface VideoTableProps {
 
 const COLUMN_CONFIG = [
   { key: 'ten_sanpham', label: 'SẢN PHẨM' },
-  { key: 'nhom_trang_thai', label: 'TRẠNG THÁI' },
+  { key: 'trang_thai', label: 'TRẠNG THÁI' },
   { key: 'ngay_demo', label: 'NGÀY DEMO' },
   { key: 'remaining_time', label: 'T.GIAN CÒN LẠI' },
   { key: 'ngay_nhan_hang', label: 'NGÀY NHẬN HÀNG' },
@@ -61,7 +61,7 @@ const COLUMN_CONFIG = [
   { key: 'nen_tang_xa_hoi', label: 'KÊNH' },
 ];
 
-const DEFAULT_COLUMNS = ['index', 'ten_sanpham', 'nhom_trang_thai', 'ngay_demo', 'remaining_time'];
+const DEFAULT_COLUMNS = ['index', 'ten_sanpham', 'trang_thai', 'ngay_demo', 'remaining_time'];
 export function VideoTable({
   count = 0,
   rows = [],
@@ -101,6 +101,18 @@ export function VideoTable({
     return result.trim();
   }
 
+  function getStatusColor(status: string) {
+    switch (status) {
+      case 'Đã Nhận Hàng':
+        return 'primary';
+      case 'Đã Giao Hàng':
+        return 'warning';
+      default:
+        return 'secondary';
+    }
+  }
+
+
   const columns = React.useMemo<ColumnDef<VideoItem>[]>(() => [
     {
       id: 'index',
@@ -119,11 +131,20 @@ export function VideoTable({
           cell: (info: any) => info.getValue(),
         };
       }
-      if (col.key === 'nhom_trang_thai') {
+      if (col.key === 'trang_thai') {
         return {
-          accessorKey: 'nhom_trang_thai',
+          accessorKey: 'trang_thai',
           header: 'TRẠNG THÁI',
-          cell: (info: any) => info.getValue(),
+          cell: (info: any) => (
+            <Button
+              variant="text"
+              color={getStatusColor(info.getValue())}
+              size="small"
+              sx={{ minWidth: 90, fontWeight: 600, textTransform: 'none' }}
+            >
+              {info.getValue()}
+            </Button>
+          ),
         };
       }
       if (col.key === 'ngay_demo') {
@@ -230,7 +251,7 @@ export function VideoTable({
       </Box>
       <Divider />
       <Box sx={{ overflowX: 'auto' }}>
-        <Table>
+        <Table sx={{ minWidth: '700px' }}>
           <TableHead>
             {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id}>
