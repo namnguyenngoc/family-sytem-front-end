@@ -24,6 +24,9 @@ import MenuItem from '@mui/material/MenuItem';
 import { useSelection } from '@/hooks/use-selection';
 import IconButton from '@mui/material/IconButton';
 import { EyeSlash as EyeSlash } from '@phosphor-icons/react/dist/ssr/EyeSlash';
+import { VideosAction } from '@/components/dashboard/videos/videos-action';
+import Grid from '@mui/material/Unstable_Grid2';
+
 function noop(): void {
   // do nothing
 }
@@ -225,14 +228,15 @@ export function VideoTable({
 
   return (
     <Card>
-      <Box sx={{ p: 2, pb: 0, display: 'flex', alignItems: 'center' }}>
-        <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
-          Danh sách video ({count})
-        </Typography>
-        {/* Dropdown for column config */}
-        <IconButton onClick={handleMenuOpen}>
-          <EyeSlash />
-        </IconButton>
+      <Box sx={{ p: 2, pb: 2, display: 'flex', alignItems: 'center' }}>
+        <VideosAction
+          total={count}
+          statusButtons={[
+            { name: 'Giao nhận (5)', color: 'primary', action: () => alert('Nhóm những trạng thái trc khi edit video') },
+            { name: 'Edit Video (7)', color: 'warning', action: () => alert('Nhóm sau khi edit tới khi hoàn thành') },
+          ]}
+          onEyeClick={handleMenuOpen}
+        />
         <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
           {COLUMN_CONFIG.map(col => (
             <MenuItem

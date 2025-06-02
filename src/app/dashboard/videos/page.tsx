@@ -16,7 +16,6 @@ import { VideoFilters } from '@/components/dashboard/videos/videos-filters';
 
 import { VideoTable }  from '@/components/dashboard/videos/video-table';
 import type { VideoItem } from '@/components/dashboard/videos/video-table';
-import { VideosAction } from '@/components/dashboard/videos/videos-action';
 
 import { useQuery, gql } from '@apollo/client';
 
@@ -95,7 +94,7 @@ export default function Page(): React.JSX.Element {
       </Stack>
       
       <VideoFilters />
-    
+      
       <VideoTable
         count={paginatedCustomers.length}
         page={page}
