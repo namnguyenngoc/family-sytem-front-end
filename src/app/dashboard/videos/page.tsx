@@ -9,6 +9,7 @@ import { Download as DownloadIcon } from '@phosphor-icons/react/dist/ssr/Downloa
 import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
 import { Upload as UploadIcon } from '@phosphor-icons/react/dist/ssr/Upload';
 import dayjs from 'dayjs';
+import { useRouter } from 'next/navigation';
 
 import { config } from '@/config';
 import { VideoFilters } from '@/components/dashboard/videos/videos-filters';
@@ -56,8 +57,9 @@ const GET_TASK_LIST = gql`
 `;
 
 export default function Page(): React.JSX.Element {
+  const router = useRouter();
   const page = 0;
-  const rowsPerPage = 5;
+  const rowsPerPage = 1000;
   const { loading: loadingTaskList, error: errorTaskList, data: dataTaskList } = useQuery(GET_TASK_LIST);
   
   const videoItemList = dataTaskList?.getTaskInfos satisfies VideoItem[];
@@ -81,7 +83,11 @@ export default function Page(): React.JSX.Element {
           </Stack>
         </Stack>
         <div>
-          <Button startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />} variant="contained">
+          <Button 
+            startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />} 
+            variant="contained"
+            onClick={() => router.push('/dashboard/task-detail')}
+          >
             Add
           </Button>
         </div>

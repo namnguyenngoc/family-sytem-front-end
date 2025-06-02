@@ -19,6 +19,7 @@ import dayjs from 'dayjs';
 
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
+import { useRouter } from 'next/navigation';
 
 const states = [
   { value: 'alabama', label: 'Alabama' },
@@ -65,6 +66,7 @@ export function TaskDetailForm(): React.JSX.Element {
   // Fetch enum list from GraphQL
   const { data: enumData, loading: enumLoading } = useQuery(ENUM_LIST);
   const { data: _BRAND_LIST, loading: brandLoading } = useQuery(BRAND_LIST);
+  const router = useRouter();
 
   // Helper to get enum values by key
   const getEnumValues = (key: string) =>
@@ -143,7 +145,8 @@ export function TaskDetailForm(): React.JSX.Element {
           }
         }
       });
-      alert("Task created successfully!");
+      alert("Đã tạo, hệ thống sẽ tự động chuyển sang trang quản lý video");
+      router.push('/dashboard/videos');
     } catch (err) {
       console.error("Error creating task:", err);
     }
@@ -169,6 +172,31 @@ export function TaskDetailForm(): React.JSX.Element {
       }));
     }
   }, [brandLoading, enumLoading, brandOptions, enumData]);
+
+  // Update estimateTime when ngay_demo or ngay_chot_don changes
+  React.useEffect(() => {
+    if (formData.ngay_demo && formData.ngay_chot_don) {
+      const chotDon = dayjs(formData.ngay_chot_don);
+      const demo = dayjs(formData.ngay_demo);
+      const diff = demo.diff(chotDon, 'minute');
+      if (diff > 0) {
+        const days = Math.floor(diff / 1440);
+        const hours = Math.floor((diff % 1440) / 60);
+        const minutes = diff % 60;
+        let result = '';
+        if (days > 0) result += `${days} ngày `;
+        if (hours > 0) result += `${hours} giờ `;
+        if (minutes > 0) result += `${minutes} phút`;
+        setEstimateTime(result.trim());
+      } else {
+        setEstimateTime('Đã qua');
+      }
+    } else if (formData.ngay_demo) {
+      setEstimateTime('Chưa có ngày chốt đơn');
+    } else {
+      setEstimateTime('');
+    }
+  }, [formData.ngay_demo, formData.ngay_chot_don]);
 
   // ...rest of your code remains unchanged, but use brandOptions for Autocomplete...
 
@@ -276,8 +304,12 @@ return (
                 />
                 
               </FormControl>
-              <Button variant="outlined" color="primary" fullWidth>
-                Thời gian ước tính { estimateTime ? `:${estimateTime}` : ""}
+              <Button
+                variant="outlined"
+                color={estimateTime === "Đã qua" ? "error" : "primary"}
+                fullWidth
+              >
+                Thời gian ước tính{estimateTime ? `: ${estimateTime}` : ""}
               </Button>
               
             </Grid>
