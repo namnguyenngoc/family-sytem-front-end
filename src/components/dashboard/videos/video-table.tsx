@@ -33,6 +33,7 @@ import TextField from '@mui/material/TextField';
 import { gql, useMutation,useQuery } from '@apollo/client';
 import Autocomplete from '@mui/material/Autocomplete';
 import InputLabel from '@mui/material/InputLabel';
+import { EditVideoModal } from './Modal/EditVideoModal';
 
 
 function noop(): void {
@@ -173,6 +174,27 @@ export function VideoTable({
   }
 
 
+  // State cho modal edit all fields
+  const [openEditModal, setOpenEditModal] = React.useState(false);
+  const [editItem, setEditItem] = React.useState<VideoItem | null>(null);
+
+  // Hàm mở modal edit all fields
+  const handleOpenEditModal = (item: VideoItem) => {
+    setEditItem(item);
+    setOpenEditModal(true);
+  };
+  const handleCloseEditModal = () => {
+    setOpenEditModal(false);
+    setEditItem(null);
+  };
+  // Hàm lưu modal edit all fields
+  const handleSaveEditModal = (data: VideoItem) => {
+    // TODO: Gọi API cập nhật hoặc mutation ở đây nếu muốn
+    setOpenEditModal(false);
+    setEditItem(null);
+    // Có thể reload lại bảng nếu cần
+  };
+
   const columns = React.useMemo<ColumnDef<VideoItem>[]>(() => [
     {
       id: 'index',
@@ -188,7 +210,17 @@ export function VideoTable({
         return {
           accessorKey: 'ten_sanpham',
           header: 'SẢN PHẨM',
-          cell: (info: any) => info.getValue(),
+          cell: (info: any) => (
+            <Button
+              variant="text"
+              color="info"
+              size="small"
+              sx={{ minWidth: 90, fontWeight: 600, textTransform: 'none' }}
+              onClick={() => handleOpenEditModal(info.row.original)}
+            >
+              {info.getValue()}
+            </Button>
+          ),
         };
       }
       if (col.key === 'trang_thai') {
@@ -533,6 +565,15 @@ export function VideoTable({
           </Button>
         </DialogActions>
       </Dialog>
+
+      <EditVideoModal
+        open={openEditModal}
+        onClose={handleCloseEditModal}
+        video={editItem}
+        columns={COLUMN_CONFIG}
+        enumValues={getEnumValues}
+        onSave={handleSaveEditModal}
+      />
     </Card>
   );
 }
