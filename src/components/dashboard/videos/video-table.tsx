@@ -68,13 +68,19 @@ interface VideoTableProps {
 
 
 const COLUMN_CONFIG = [
+  { key: 'ten_brand', label: 'BRAND' },
   { key: 'ten_sanpham', label: 'SẢN PHẨM' },
+  { key: 'nen_tang_xa_hoi', label: 'KÊNH' },
   { key: 'trang_thai', label: 'TRẠNG THÁI' },
+  { key: 'nhom_trang_thai', label: 'NHÓM TRẠNG THÁI' },
+  { key: 'ngay_chot_don', label: 'NGÀY CHỐT ĐƠN' },
+  { key: 'ngay_hen_giao_san_pham', label: 'NGÀY HẸN GIAO SẢN PHẨM' },
+  { key: 'ngay_giao_hang', label: 'NGÀY GIAO HÀNG' },
   { key: 'ngay_demo', label: 'NGÀY DEMO' },
+  { key: 'ngay_air', label: 'NGÀY AIR' },
+  { key: 'ghi_chu', label: 'GHI CHÚ' },
   { key: 'remaining_time', label: 'T.GIAN CÒN LẠI' },
   { key: 'ngay_nhan_hang', label: 'NGÀY NHẬN HÀNG' },
-  { key: 'ten_brand', label: 'BRAND' },
-  { key: 'nen_tang_xa_hoi', label: 'KÊNH' },
 ];
 
 const DEFAULT_COLUMNS = ['index', 'ten_sanpham', 'trang_thai', 'ngay_demo', 'remaining_time'];
@@ -217,6 +223,9 @@ export function VideoTable({
             ngay_demo: data.ngay_demo,
             nen_tang_xa_hoi: data.nen_tang_xa_hoi,
             ghi_chu: data.ghi_chu,
+            ngay_hen_giao_san_pham: data.ngay_hen_giao_san_pham,
+            ngay_giao_hang: data.ngay_giao_hang,
+            trang_thai: data.trang_thai,
             // add other fields as needed
           },
         },

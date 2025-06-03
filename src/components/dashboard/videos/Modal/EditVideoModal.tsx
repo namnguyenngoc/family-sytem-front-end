@@ -123,18 +123,7 @@ export function EditVideoModal({ open, onClose, video, columns, enumValues, onSa
                     InputLabelProps={{ shrink: true }}
                   />
                 );
-              case 'ngay_air':
-                return (
-                  <TextField
-                    key={col.key}
-                    label={col.label}
-                    type="date"
-                    value={form.ngay_air ? form.ngay_air.slice(0, 10) : ''}
-                    onChange={e => handleChange('ngay_air', e.target.value)}
-                    fullWidth
-                    InputLabelProps={{ shrink: true }}
-                  />
-                );
+              
               case 'ghi_chu':
                 return (
                   <TextField
@@ -147,16 +136,6 @@ export function EditVideoModal({ open, onClose, video, columns, enumValues, onSa
                     rows={2}
                   />
                 );
-              case 'ten_brand':
-                return (
-                  <TextField
-                    key={col.key}
-                    label={col.label}
-                    value={form.ten_brand || ''}
-                    onChange={e => handleChange('ten_brand', e.target.value)}
-                    fullWidth
-                  />
-                );
               case 'ten_sanpham':
                 return (
                   <TextField
@@ -167,6 +146,17 @@ export function EditVideoModal({ open, onClose, video, columns, enumValues, onSa
                     fullWidth
                   />
                 );
+              case 'ten_brand':
+                return (
+                  <TextField
+                    key={col.key}
+                    label={col.label}
+                    value={form.ten_brand || ''}
+                    onChange={e => handleChange('ten_brand', e.target.value)}
+                    fullWidth
+                  />
+                );
+              
               case 'id':
                 return null; // id is not editable
               default:
