@@ -61,15 +61,28 @@ export default function Page(): React.JSX.Element {
   const page = 0;
   const rowsPerPage = 1000;
   const { loading: loadingTaskList, error: errorTaskList, data: dataTaskList } = useQuery(GET_TASK_LIST);
-  
+
   const videoItemList = dataTaskList?.getTaskInfos satisfies VideoItem[];
 
+  const [filter, setFilter] = React.useState('');
+
+  // Filter logic: match tên_san_phẩm, brand, or kênh (case-insensitive, partial)
+  const filteredList = React.useMemo(() => {
+    if (!filter) return videoItemList || [];
+    const lower = filter.toLowerCase();
+    return (videoItemList || []).filter((item: VideoItem) =>
+      (item.ten_sanpham && item.ten_sanpham.toLowerCase().includes(lower)) ||
+      (item.ten_brand && item.ten_brand.toLowerCase().includes(lower)) ||
+      (item.nen_tang_xa_hoi && item.nen_tang_xa_hoi.toLowerCase().includes(lower))
+    );
+  }, [filter, videoItemList]);
+
   if (loadingTaskList) return <p>Loading summary...</p>;
-  
-  const paginatedCustomers = applyPagination(videoItemList, page, rowsPerPage);
+
+  const paginatedCustomers = applyPagination(filteredList, page, rowsPerPage);
 
   return (
-    <Stack spacing={3}>
+    <Stack spacing={3} sx={{ px: 1, py: 3 }}>
       <Stack direction="row" spacing={3}>
         <Stack spacing={1} sx={{ flex: '1 1 auto' }}>
           <Typography variant="h4">Video List</Typography>
@@ -93,7 +106,7 @@ export default function Page(): React.JSX.Element {
         </div>
       </Stack>
       
-      <VideoFilters />
+      <VideoFilters value={filter} onChange={setFilter} />
       
       <VideoTable
         count={paginatedCustomers.length}
