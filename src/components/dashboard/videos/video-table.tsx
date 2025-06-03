@@ -34,6 +34,8 @@ import { gql, useMutation,useQuery } from '@apollo/client';
 import Autocomplete from '@mui/material/Autocomplete';
 import InputLabel from '@mui/material/InputLabel';
 import { EditVideoModal } from './Modal/EditVideoModal';
+import { EditStatusModal } from './Modal/EditStatusModal';
+import { useRouter } from 'next/navigation';
 
 
 function noop(): void {
@@ -60,6 +62,7 @@ interface VideoTableProps {
   page?: number;
   rows?: VideoItem[];
   rowsPerPage?: number;
+  onRefetch?: () => void; // Thêm prop này để gọi refetch từ cha
 }
 
 
@@ -98,19 +101,31 @@ const UPDATE_VIDEO_STATUS = gql`
   }
 `;
 
+const UPDATE_OR_CREATE_TASK_INFO = gql`
+  mutation UpdateOrCreateTaskInfo($createTaskInfoInput: CreateTaskInfoInput!) {
+    updateOrCreateTaskInfo(createTaskInfoInput: $createTaskInfoInput) {
+      id
+      trang_thai
+      ghi_chu
+    }
+  }
+`;
+
 
 export function VideoTable({
   count = 0,
   rows = [],
   page = 0,
   rowsPerPage = 0,
+  onRefetch, // nhận prop này
 }: VideoTableProps): React.JSX.Element {
   const theme = useTheme();
   const isSmUp = useMediaQuery(theme.breakpoints.down('sm'));
   const isLgUp = useMediaQuery(theme.breakpoints.up('lg'));
+  const router = useRouter();
   console.log('isSmUp', isSmUp);
 
-  const { data: enumData, loading: enumLoading } = useQuery(ENUM_LIST);
+  const { data: enumData, loading: enumLoading, refetch } = useQuery(ENUM_LIST);
 
   // Helper to get enum values by key
   const getEnumValues = (key: string) =>
@@ -188,11 +203,32 @@ export function VideoTable({
     setEditItem(null);
   };
   // Hàm lưu modal edit all fields
-  const handleSaveEditModal = (data: VideoItem) => {
-    // TODO: Gọi API cập nhật hoặc mutation ở đây nếu muốn
-    setOpenEditModal(false);
-    setEditItem(null);
-    // Có thể reload lại bảng nếu cần
+  const [updateOrCreateTaskInfo] = useMutation(UPDATE_OR_CREATE_TASK_INFO);
+  const handleSaveEditModal = async (data: VideoItem) => {
+    try {
+      await updateOrCreateTaskInfo({
+        variables: {
+          createTaskInfoInput: {
+            id: data.id,
+            ten_brand: data.ten_brand,
+            ten_sanpham: data.ten_sanpham,
+            ngay_chot_don: data.ngay_chot_don,
+            ngay_demo: data.ngay_demo,
+            nen_tang_xa_hoi: data.nen_tang_xa_hoi,
+            ghi_chu: data.ghi_chu,
+            // add other fields as needed
+          },
+        },
+      });
+      setOpenEditModal(false);
+      setEditItem(null);
+      alert('Cập nhật thành công!');
+      if (onRefetch) onRefetch(); // Gọi refetch từ cha nếu có
+      // Update table data locally without full reload
+      console.log('Cập nhật thành công!', data);
+    } catch (error) {
+      alert('Có lỗi xảy ra khi cập nhật chi tiết video!');
+    }
   };
 
   const columns = React.useMemo<ColumnDef<VideoItem>[]>(() => [
@@ -504,67 +540,15 @@ export function VideoTable({
         rowsPerPageOptions={[5, 10, 25]}
       /> */}
 
-      <Dialog open={openModal} onClose={handleCloseModal} maxWidth="sm" fullWidth>
-        <DialogTitle>Chỉnh sửa trạng thái video</DialogTitle>
-        <DialogContent>
-          {selectedItem && (
-            <Stack spacing={2} sx={{ mt: 1 }}>
-              {/* Hiển thị trạng thái ban đầu (không đổi khi chọn mới) */}
-              <Box>
-                <span style={{ fontWeight: 500 }}>Trạng thái hiện tại:&nbsp;</span>
-                <span style={{ color: 'red', fontWeight: 'bold' }}>
-                  {selectedItem.trang_thai}
-                </span>
-              </Box>
-              <Autocomplete
-                freeSolo
-                options={getEnumValues('VIDEO_STATUS_PROCESSING').map((option: any) => option.label)}
-                value={selectedItem.trang_thai || ''}
-                onChange={(_, newValue) => {
-                  setSelectedItem(prev =>
-                    prev
-                      ? {
-                          ...prev,
-                          trang_thai: newValue || '',
-                          ghi_chu:
-                            newValue && newValue !== oldStatus
-                              ? `Chuyển từ: ${oldStatus} --> ${newValue}`
-                              : prev.ghi_chu,
-                        }
-                      : prev
-                  );
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Trạng thái"
-                  />
-                )}
-              />
-              <TextField
-                label="Ghi chú"
-                value={selectedItem.ghi_chu}
-                onChange={e =>
-                  setSelectedItem({ ...selectedItem, ghi_chu: e.target.value })
-                }
-                multiline
-                rows={2}
-              />
-              {/* Thêm các trường khác nếu muốn chỉnh sửa */}
-            </Stack>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseModal}>Hủy</Button>
-          <Button 
-            onClick={handleChangeStatus} 
-            variant="contained" 
-            disabled={!selectedItem || oldStatus === selectedItem.trang_thai}
-          >
-            Lưu
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <EditStatusModal
+        open={openModal}
+        onClose={handleCloseModal}
+        selectedItem={selectedItem}
+        oldStatus={oldStatus}
+        getEnumValues={getEnumValues}
+        handleChangeStatus={handleChangeStatus}
+        setSelectedItem={setSelectedItem}
+      />
 
       <EditVideoModal
         open={openEditModal}

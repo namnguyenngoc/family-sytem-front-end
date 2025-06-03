@@ -60,7 +60,7 @@ export default function Page(): React.JSX.Element {
   const router = useRouter();
   const page = 0;
   const rowsPerPage = 1000;
-  const { loading: loadingTaskList, error: errorTaskList, data: dataTaskList } = useQuery(GET_TASK_LIST);
+  const { loading: loadingTaskList, error: errorTaskList, data: dataTaskList, refetch } = useQuery(GET_TASK_LIST);
 
   const videoItemList = dataTaskList?.getTaskInfos satisfies VideoItem[];
 
@@ -113,6 +113,7 @@ export default function Page(): React.JSX.Element {
         page={page}
         rows={paginatedCustomers}
         rowsPerPage={rowsPerPage}
+        onRefetch={refetch} // Truyền refetch xuống VideoTable
       />
     </Stack>
   );

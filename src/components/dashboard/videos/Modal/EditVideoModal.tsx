@@ -28,8 +28,8 @@ export function EditVideoModal({ open, onClose, video, columns, enumValues, onSa
     setForm((prev: any) => ({ ...prev, [key]: value }));
   };
 
-  const handleSave = () => {
-    onSave(form);
+  const handleSave = async () => {
+    await onSave(form);
   };
 
   return (
