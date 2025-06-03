@@ -89,7 +89,7 @@ const ENUM_LIST = gql`
 
 // Thêm mutation GraphQL cập nhật trạng thái video
 const UPDATE_VIDEO_STATUS = gql`
-  mutation UpdateVideoStatus($id: Int!, $trang_thai: String!, $ghi_chu: String) {
+  mutation UpdateVideoStatus($id: Float!, $trang_thai: String!, $ghi_chu: String) {
     updateVideoStatus(id: $id, trang_thai: $trang_thai, ghi_chu: $ghi_chu) {
       id
       trang_thai
@@ -325,7 +325,7 @@ export function VideoTable({
     try {
       await updateVideoStatus({
         variables: {
-          id: selectedItem.id,
+          id: selectedItem.id as number,
           trang_thai: selectedItem.trang_thai,
           ghi_chu: selectedItem.ghi_chu,
         },
