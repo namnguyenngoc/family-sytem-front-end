@@ -21,9 +21,10 @@ interface VideosActionProps {
   statusButtons: StatusButton[];
   total?: number;
   onEyeClick?: (event: React.MouseEvent<HTMLElement>) => void;
+  onStatusClick?: (status: string) => void; // Thêm prop callback cho filter
 }
 
-export function VideosAction({ statusButtons, total, onEyeClick }: VideosActionProps): React.JSX.Element {
+export function VideosAction({ statusButtons, total, onEyeClick, onStatusClick }: VideosActionProps): React.JSX.Element {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
       {/* Total */}
@@ -37,7 +38,10 @@ export function VideosAction({ statusButtons, total, onEyeClick }: VideosActionP
             key={btn.name}
             variant="text"
             color={btn.color}
-            onClick={btn.action}
+            onClick={() => {
+              btn.action();
+              if (onStatusClick) onStatusClick(btn.name);
+            }}
           >
             {btn.name}
           </Button>

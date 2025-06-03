@@ -443,31 +443,73 @@ export function VideoTable({
     'uChoice': rows.filter(row => row.nen_tang_xa_hoi === 'uChoice').length,
   };
 
+  // State for channel filter
+  const [channelFilter, setChannelFilter] = React.useState<string | null>(null);
+  // State for status filter
+  const [statusFilter, setStatusFilter] = React.useState<string | null>(null);
+
+  // Filter rows by channel and status if set
+  const filteredRows = React.useMemo(() => {
+    let result = rows;
+    if (channelFilter) {
+      result = result.filter(row => row.nen_tang_xa_hoi === channelFilter);
+    }
+    if (statusFilter) {
+      if (statusFilter === 'Mới') {
+        result = result.filter(row => groupStatus['Đơn hàng mới'].includes(row.trang_thai));
+      } else if (statusFilter === 'Editing') {
+        result = result.filter(row => groupStatus['Edit'].includes(row.trang_thai));
+      } else if (statusFilter === 'Demo') {
+        result = result.filter(row =>
+          !groupStatus['Đơn hàng mới'].includes(row.trang_thai) &&
+          !groupStatus['Edit'].includes(row.trang_thai)
+        );
+      }
+    }
+    return result;
+  }, [rows, channelFilter, statusFilter]);
+
   
   return (
     <Card>
       <Box sx={{ p: 2, pb: 2, display: 'flex', alignItems: 'center' }}>
         <Stack direction="column" spacing={1} sx={{ width: '100%' }}>
           <Stack direction="row" spacing={1}>
+            {channelFilter && (
+              <IconButton size="small" color="secondary" onClick={() => setChannelFilter(null)} sx={{ ml: 1, p: '2px' }} title="Xoá lọc channel">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4.22 4.22a.75.75 0 0 1 1.06 0L8 6.94l2.72-2.72a.75.75 0 1 1 1.06 1.06L9.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L8 9.06l-2.72 2.72a.75.75 0 1 1-1.06-1.06L6.94 8 4.22 5.28a.75.75 0 0 1 0-1.06z" fill="currentColor"/>
+                </svg>
+              </IconButton>
+            )}
             <ChannelComponent
               statusButtons={[
-                { name: `Tiktok (${countByChannel['Tiktok'] ?? 0})`, color: 'info', action: () => {} },
-                { name: `AgentC (${countByChannel['AgentC'] ?? 0})`, color: 'primary', action: () => {} },
-                { name: `uChoice (${countByChannel['uChoice'] ?? 0})`, color: 'warning', action: () => {} },
+                { name: `Tiktok (${countByChannel['Tiktok'] ?? 0})`, color: 'info', action: () => setChannelFilter('Tiktok') },
+                { name: `AgentC (${countByChannel['AgentC'] ?? 0})`, color: 'primary', action: () => setChannelFilter('AgentC') },
+                { name: `uChoice (${countByChannel['uChoice'] ?? 0})`, color: 'warning', action: () => setChannelFilter('uChoice') },
               ]}
             />
+           
           </Stack>
           <Divider />
           <Stack direction="row" spacing={1}>
+            {statusFilter && (
+              <IconButton size="small" color="secondary" onClick={() => setStatusFilter(null)} sx={{ ml: 1, p: '2px' }} title="Xoá lọc trạng thái">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4.22 4.22a.75.75 0 0 1 1.06 0L8 6.94l2.72-2.72a.75.75 0 1 1 1.06 1.06L9.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L8 9.06l-2.72 2.72a.75.75 0 1 1-1.06-1.06L6.94 8 4.22 5.28a.75.75 0 0 1 0-1.06z" fill="currentColor"/>
+                </svg>
+              </IconButton>
+            )}
             <VideosAction
               total={count}
               statusButtons={[
-                { name: `Mới (${countByGroup['Đơn hàng mới'] ?? 0})`, color: 'info', action: () => {} },
-                { name: `Editing (${countByGroup['Edit'] ?? 0})`, color: 'info', action: () => {} },
-                { name: `Demo (${countByGroup['Chờ Demo'] ?? 0})`, color: 'success', action: () => {} },
+                { name: `Mới`, color: 'info', action: () => setStatusFilter('Mới') },
+                { name: `Editing`, color: 'info', action: () => setStatusFilter('Editing') },
+                { name: `Demo`, color: 'success', action: () => setStatusFilter('Demo') },
               ]}
               onEyeClick={handleMenuOpen}
             />
+            
           </Stack>
         </Stack>
         <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
@@ -522,7 +564,6 @@ export function VideoTable({
                         header.column.id === 'ten_sanpham' && isSmUp
                           ? 'nowrap'
                           : undefined,
-                        
                     }}
                   >
                     {flexRender(header.column.columnDef.header, header.getContext())}
@@ -532,45 +573,55 @@ export function VideoTable({
             ))}
           </TableHead>
           <TableBody>
-            {table.getRowModel().rows.map(row => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map(cell => (
-                  <TableCell
-                    key={cell.id}
-                    sx={{
-                      textAlign:
-                        cell.column.id === 'index'
-                          ? 'center'
-                          : undefined,
-                      width:
-                        cell.column.id === 'ten_sanpham' && isSmUp
-                          ? 120
-                          : cell.column.id === 'index'
-                          ? 60
-                          : undefined,
-                      maxWidth:
-                        cell.column.id === 'ten_sanpham' && isSmUp
-                          ? 200
-                          : undefined,
-                      overflow:
-                        cell.column.id === 'ten_sanpham' && isSmUp
-                          ? 'hidden'
-                          : undefined,
-                      textOverflow:
-                        cell.column.id === 'ten_sanpham' && isSmUp
-                          ? 'ellipsis'
-                          : undefined,
-                      whiteSpace:
-                        cell.column.id === 'ten_sanpham' && isSmUp
-                          ? 'nowrap'
-                          : undefined,
-                    }}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
+            {table.getRowModel().rows
+              .filter(row => {
+                if (channelFilter && row.original.nen_tang_xa_hoi !== channelFilter) return false;
+                if (statusFilter) {
+                  if (statusFilter === 'Mới' && !groupStatus['Đơn hàng mới'].includes(row.original.trang_thai)) return false;
+                  if (statusFilter === 'Editing' && !groupStatus['Edit'].includes(row.original.trang_thai)) return false;
+                  if (statusFilter === 'Demo' && (groupStatus['Đơn hàng mới'].includes(row.original.trang_thai) || groupStatus['Edit'].includes(row.original.trang_thai))) return false;
+                }
+                return true;
+              })
+              .map(row => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map(cell => (
+                    <TableCell
+                      key={cell.id}
+                      sx={{
+                        textAlign:
+                          cell.column.id === 'index'
+                            ? 'center'
+                            : undefined,
+                        width:
+                          cell.column.id === 'ten_sanpham' && isSmUp
+                            ? 120
+                            : cell.column.id === 'index'
+                            ? 60
+                            : undefined,
+                        maxWidth:
+                          cell.column.id === 'ten_sanpham' && isSmUp
+                            ? 200
+                            : undefined,
+                        overflow:
+                          cell.column.id === 'ten_sanpham' && isSmUp
+                            ? 'hidden'
+                            : undefined,
+                        textOverflow:
+                          cell.column.id === 'ten_sanpham' && isSmUp
+                            ? 'ellipsis'
+                            : undefined,
+                        whiteSpace:
+                          cell.column.id === 'ten_sanpham' && isSmUp
+                            ? 'nowrap'
+                            : undefined,
+                      }}
+                    >
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </Box>
