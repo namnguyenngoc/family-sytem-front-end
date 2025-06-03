@@ -9,6 +9,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import { EyeSlash as EyeSlash } from '@phosphor-icons/react/dist/ssr/EyeSlash';
+import Divider from '@mui/material/Divider';
 
 interface StatusButton {
   name: string;
@@ -26,9 +27,9 @@ export function VideosAction({ statusButtons, total, onEyeClick }: VideosActionP
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
       {/* Total */}
-      <Typography variant="subtitle1" sx={{ mr: 2 }}>
+      {/* <Typography variant="subtitle1" sx={{ mr: 2 }}>
         Total{typeof total === 'number' ? ` (${total})` : ''}
-      </Typography>
+      </Typography> */}
       {/* Status buttons */}
       <Stack direction="row" spacing={1} mr={2}>
         {statusButtons.map((btn) => (
@@ -42,6 +43,7 @@ export function VideosAction({ statusButtons, total, onEyeClick }: VideosActionP
           </Button>
         ))}
       </Stack>
+      <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
       {/* Eye IconButton */}
       {onEyeClick && (
         <IconButton onClick={onEyeClick} sx={{ ml: 'auto' }}>

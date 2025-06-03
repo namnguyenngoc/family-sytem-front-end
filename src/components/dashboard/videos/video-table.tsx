@@ -25,7 +25,15 @@ import { useSelection } from '@/hooks/use-selection';
 import IconButton from '@mui/material/IconButton';
 import { EyeSlash as EyeSlash } from '@phosphor-icons/react/dist/ssr/EyeSlash';
 import { VideosAction } from '@/components/dashboard/videos/videos-action';
-import Grid from '@mui/material/Unstable_Grid2';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import TextField from '@mui/material/TextField';
+import { gql, useMutation,useQuery } from '@apollo/client';
+import Autocomplete from '@mui/material/Autocomplete';
+import InputLabel from '@mui/material/InputLabel';
+
 
 function noop(): void {
   // do nothing
@@ -65,6 +73,31 @@ const COLUMN_CONFIG = [
 ];
 
 const DEFAULT_COLUMNS = ['index', 'ten_sanpham', 'trang_thai', 'ngay_demo', 'remaining_time'];
+
+const ENUM_LIST = gql`
+  query EnumList {
+    enumList {
+      key
+      values {
+        label
+        value
+      }
+    }
+  }
+`;
+
+// Thêm mutation GraphQL cập nhật trạng thái video
+const UPDATE_VIDEO_STATUS = gql`
+  mutation UpdateVideoStatus($id: Int!, $trang_thai: String!, $ghi_chu: String) {
+    updateVideoStatus(id: $id, trang_thai: $trang_thai, ghi_chu: $ghi_chu) {
+      id
+      trang_thai
+      ghi_chu
+    }
+  }
+`;
+
+
 export function VideoTable({
   count = 0,
   rows = [],
@@ -75,6 +108,30 @@ export function VideoTable({
   const isSmUp = useMediaQuery(theme.breakpoints.down('sm'));
   const isLgUp = useMediaQuery(theme.breakpoints.up('lg'));
   console.log('isSmUp', isSmUp);
+
+  const { data: enumData, loading: enumLoading } = useQuery(ENUM_LIST);
+
+  // Helper to get enum values by key
+  const getEnumValues = (key: string) =>
+    enumData?.enumList?.find((item: any) => item.key === key)?.values || [];
+
+  // State cho modal
+  const [openModal, setOpenModal] = React.useState(false);
+  const [selectedItem, setSelectedItem] = React.useState<VideoItem | null>(null);
+  const [oldStatus, setOldStatus] = React.useState<string>('');
+
+   // Hàm mở modal
+  const handleOpenModal = (item: VideoItem) => {
+    setSelectedItem(item);
+    setOldStatus(item.trang_thai);
+    setOpenModal(true);
+  };
+
+  // Hàm đóng modal
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setSelectedItem(null);
+  };
 
   // State for column visibility
   const [visibleColumns, setVisibleColumns] = React.useState<string[]>([
@@ -144,6 +201,7 @@ export function VideoTable({
               color={getStatusColor(info.getValue())}
               size="small"
               sx={{ minWidth: 90, fontWeight: 600, textTransform: 'none' }}
+              onClick={() => handleOpenModal(info.row.original)}
             >
               {info.getValue()}
             </Button>
@@ -226,14 +284,76 @@ export function VideoTable({
   };
 
 
+  // Mutation hook
+  const [updateVideoStatus] = useMutation(UPDATE_VIDEO_STATUS);
+
+  // Hàm cập nhật trạng thái video
+  const handleChangeStatus = async () => {
+    if (!selectedItem) return;
+    try {
+      await updateVideoStatus({
+        variables: {
+          id: selectedItem.id,
+          trang_thai: selectedItem.trang_thai,
+          ghi_chu: selectedItem.ghi_chu,
+        },
+        refetchQueries: [
+          { query: ENUM_LIST }, // Thay bằng query lấy danh sách video nếu có, ví dụ: GET_VIDEOS
+        ],
+      });
+      alert('Đã cập nhật');
+      setOpenModal(false);
+      setSelectedItem(null);
+      // Nếu bạn có hàm reload data riêng, gọi ở đây
+    } catch (error) {
+      alert('Có lỗi xảy ra khi cập nhật');
+    }
+  };
+
+  // Định nghĩa các nhóm trạng thái
+  const groupStatus = {
+    'Đơn hàng mới': [
+      'Xem mẫu',
+      'Xin mẫu',
+      'Chờ Xác Nhận',
+      'App/Shop Xác Nhận',
+    ],
+    'Vận chuyển': [
+      'Chờ Lấy Hàng',
+      'Đang Giao Hàng',
+      'Đang Giao Hàng',
+      'Đã Nhận Hàng',
+    ],
+    'Edit': [
+      'Đang Quay',
+      'Đã Quay',
+      'Đang Edit',
+      'Đã Xuất Clip',
+    ],
+  };
+
+  // Đếm số lượng đơn theo nhóm
+  const countByGroup = {
+    'Đơn hàng mới': rows.filter(row => groupStatus['Đơn hàng mới'].includes(row.trang_thai)).length,
+    'Vận chuyển': rows.filter(row => groupStatus['Vận chuyển'].includes(row.trang_thai)).length,
+    'Edit': rows.filter(row => groupStatus['Edit'].includes(row.trang_thai)).length,
+    'Chờ Demo': rows.filter(row =>
+      !groupStatus['Đơn hàng mới'].includes(row.trang_thai) &&
+      !groupStatus['Vận chuyển'].includes(row.trang_thai) &&
+      !groupStatus['Edit'].includes(row.trang_thai)
+    ).length,
+  };
+
   return (
     <Card>
       <Box sx={{ p: 2, pb: 2, display: 'flex', alignItems: 'center' }}>
         <VideosAction
           total={count}
           statusButtons={[
-            { name: 'Giao nhận (5)', color: 'primary', action: () => alert('Nhóm những trạng thái trc khi edit video') },
-            { name: 'Edit Video (7)', color: 'warning', action: () => alert('Nhóm sau khi edit tới khi hoàn thành') },
+            { name: `Đơn hàng mới (${countByGroup['Đơn hàng mới'] ?? 0})`, color: 'info', action: () => {} },
+            { name: `Vận chuyển (${countByGroup['Vận chuyển'] ?? 0})`, color: 'primary', action: () => {} },
+            { name: `Edit (${countByGroup['Edit'] ?? 0})`, color: 'warning', action: () => {} },
+            { name: `Demo (${countByGroup['Chờ Demo'] ?? 0})`, color: 'success', action: () => {} },
           ]}
           onEyeClick={handleMenuOpen}
         />
@@ -351,6 +471,68 @@ export function VideoTable({
         rowsPerPage={rowsPerPage}
         rowsPerPageOptions={[5, 10, 25]}
       /> */}
+
+      <Dialog open={openModal} onClose={handleCloseModal} maxWidth="sm" fullWidth>
+        <DialogTitle>Chỉnh sửa trạng thái video</DialogTitle>
+        <DialogContent>
+          {selectedItem && (
+            <Stack spacing={2} sx={{ mt: 1 }}>
+              {/* Hiển thị trạng thái ban đầu (không đổi khi chọn mới) */}
+              <Box>
+                <span style={{ fontWeight: 500 }}>Trạng thái hiện tại:&nbsp;</span>
+                <span style={{ color: 'red', fontWeight: 'bold' }}>
+                  {selectedItem.trang_thai}
+                </span>
+              </Box>
+              <Autocomplete
+                freeSolo
+                options={getEnumValues('VIDEO_STATUS_PROCESSING').map((option: any) => option.label)}
+                value={selectedItem.trang_thai || ''}
+                onChange={(_, newValue) => {
+                  setSelectedItem(prev =>
+                    prev
+                      ? {
+                          ...prev,
+                          trang_thai: newValue || '',
+                          ghi_chu:
+                            newValue && newValue !== oldStatus
+                              ? `Chuyển từ: ${oldStatus} --> ${newValue}`
+                              : prev.ghi_chu,
+                        }
+                      : prev
+                  );
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Trạng thái"
+                  />
+                )}
+              />
+              <TextField
+                label="Ghi chú"
+                value={selectedItem.ghi_chu}
+                onChange={e =>
+                  setSelectedItem({ ...selectedItem, ghi_chu: e.target.value })
+                }
+                multiline
+                rows={2}
+              />
+              {/* Thêm các trường khác nếu muốn chỉnh sửa */}
+            </Stack>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal}>Hủy</Button>
+          <Button 
+            onClick={handleChangeStatus} 
+            variant="contained" 
+            disabled={!selectedItem || oldStatus === selectedItem.trang_thai}
+          >
+            Lưu
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 }
