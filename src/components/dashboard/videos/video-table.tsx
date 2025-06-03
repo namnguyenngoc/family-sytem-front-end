@@ -25,6 +25,7 @@ import { useSelection } from '@/hooks/use-selection';
 import IconButton from '@mui/material/IconButton';
 import { EyeSlash as EyeSlash } from '@phosphor-icons/react/dist/ssr/EyeSlash';
 import { VideosAction } from '@/components/dashboard/videos/videos-action';
+import { ChannelComponent } from '@/components/dashboard/videos/channel-component';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -72,7 +73,7 @@ const COLUMN_CONFIG = [
   { key: 'ngay_demo', label: 'NGÀY DEMO' },
   { key: 'remaining_time', label: 'T.GIAN CÒN LẠI' },
   { key: 'ngay_nhan_hang', label: 'NGÀY NHẬN HÀNG' },
-  { key: 'ten_brand', label: 'BRANCH' },
+  { key: 'ten_brand', label: 'BRAND' },
   { key: 'nen_tang_xa_hoi', label: 'KÊNH' },
 ];
 
@@ -247,15 +248,23 @@ export function VideoTable({
           accessorKey: 'ten_sanpham',
           header: 'SẢN PHẨM',
           cell: (info: any) => (
-            <Button
-              variant="text"
-              color="info"
-              size="small"
-              sx={{ minWidth: 90, fontWeight: 600, textTransform: 'none' }}
-              onClick={() => handleOpenEditModal(info.row.original)}
+            <a
+              href="#"
+              style={{
+                color: '#1976d2',
+                fontWeight: 600,
+                minWidth: 90,
+                textDecoration: 'none',
+                cursor: 'pointer',
+                textTransform: 'none',
+              }}
+              onClick={e => {
+                e.preventDefault();
+                handleOpenEditModal(info.row.original);
+              }}
             >
               {info.getValue()}
-            </Button>
+            </a>
           ),
         };
       }
@@ -379,52 +388,88 @@ export function VideoTable({
   };
 
   // Định nghĩa các nhóm trạng thái
+  // const groupStatus = {
+  //   'Đơn hàng mới': [
+  //     'Xem mẫu',
+  //     'Xin mẫu',
+  //     'Chờ Xác Nhận',
+  //     'App/Shop Xác Nhận',
+  //   ],
+  //   'Vận chuyển': [
+  //     'Chờ Lấy Hàng',
+  //     'Đang Giao Hàng',
+  //     'Đang Giao Hàng',
+  //     'Đã Nhận Hàng',
+  //   ],
+  //   'Edit': [
+  //     'Đang Quay',
+  //     'Đã Quay',
+  //     'Đang Edit',
+  //     'Đã Xuất Clip',
+  //   ],
+  // };
   const groupStatus = {
     'Đơn hàng mới': [
       'Xem mẫu',
       'Xin mẫu',
       'Chờ Xác Nhận',
       'App/Shop Xác Nhận',
-    ],
-    'Vận chuyển': [
       'Chờ Lấy Hàng',
       'Đang Giao Hàng',
       'Đang Giao Hàng',
       'Đã Nhận Hàng',
+      
     ],
     'Edit': [
       'Đang Quay',
       'Đã Quay',
       'Đang Edit',
       'Đã Xuất Clip',
-    ],
+    ]
+    
   };
-
-  // Đếm số lượng đơn theo nhóm
   const countByGroup = {
     'Đơn hàng mới': rows.filter(row => groupStatus['Đơn hàng mới'].includes(row.trang_thai)).length,
-    'Vận chuyển': rows.filter(row => groupStatus['Vận chuyển'].includes(row.trang_thai)).length,
     'Edit': rows.filter(row => groupStatus['Edit'].includes(row.trang_thai)).length,
     'Chờ Demo': rows.filter(row =>
       !groupStatus['Đơn hàng mới'].includes(row.trang_thai) &&
-      !groupStatus['Vận chuyển'].includes(row.trang_thai) &&
       !groupStatus['Edit'].includes(row.trang_thai)
     ).length,
   };
+  // Đếm số lượng đơn theo nhóm
+  const countByChannel = {
+    'Tiktok': rows.filter(row => row.nen_tang_xa_hoi === 'Tiktok').length,
+    'AgentC': rows.filter(row => row.nen_tang_xa_hoi === 'AgentC').length,
+    'uChoice': rows.filter(row => row.nen_tang_xa_hoi === 'uChoice').length,
+  };
 
+  
   return (
     <Card>
       <Box sx={{ p: 2, pb: 2, display: 'flex', alignItems: 'center' }}>
-        <VideosAction
-          total={count}
-          statusButtons={[
-            { name: `Đơn hàng mới (${countByGroup['Đơn hàng mới'] ?? 0})`, color: 'info', action: () => {} },
-            { name: `Vận chuyển (${countByGroup['Vận chuyển'] ?? 0})`, color: 'primary', action: () => {} },
-            { name: `Edit (${countByGroup['Edit'] ?? 0})`, color: 'warning', action: () => {} },
-            { name: `Demo (${countByGroup['Chờ Demo'] ?? 0})`, color: 'success', action: () => {} },
-          ]}
-          onEyeClick={handleMenuOpen}
-        />
+        <Stack direction="column" spacing={1} sx={{ width: '100%' }}>
+          <Stack direction="row" spacing={1}>
+            <ChannelComponent
+              statusButtons={[
+                { name: `Tiktok (${countByChannel['Tiktok'] ?? 0})`, color: 'info', action: () => {} },
+                { name: `AgentC (${countByChannel['AgentC'] ?? 0})`, color: 'primary', action: () => {} },
+                { name: `uChoice (${countByChannel['uChoice'] ?? 0})`, color: 'warning', action: () => {} },
+              ]}
+            />
+          </Stack>
+          <Divider />
+          <Stack direction="row" spacing={1}>
+            <VideosAction
+              total={count}
+              statusButtons={[
+                { name: `Mới (${countByGroup['Đơn hàng mới'] ?? 0})`, color: 'info', action: () => {} },
+                { name: `Editing (${countByGroup['Edit'] ?? 0})`, color: 'info', action: () => {} },
+                { name: `Demo (${countByGroup['Chờ Demo'] ?? 0})`, color: 'success', action: () => {} },
+              ]}
+              onEyeClick={handleMenuOpen}
+            />
+          </Stack>
+        </Stack>
         <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
           {COLUMN_CONFIG.map(col => (
             <MenuItem
