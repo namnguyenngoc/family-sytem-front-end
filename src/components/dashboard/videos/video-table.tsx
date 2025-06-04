@@ -119,6 +119,12 @@ const UPDATE_OR_CREATE_TASK_INFO = gql`
   }
 `;
 
+const DELETE_TASK_INFO = gql`
+  mutation DeleteTaskInfo($deleteTaskInfoId: Float!) {
+    deleteTaskInfo(id: $deleteTaskInfoId)
+  }
+`;
+
 
 export function VideoTable({
   count = 0,
@@ -481,6 +487,23 @@ export function VideoTable({
   }, [rows, channelFilter, statusFilter]);
 
   
+  // Xoá video (task info) theo id, gọi mutation và refetch lại dữ liệu
+  const [deleteTaskInfo] = useMutation(DELETE_TASK_INFO);
+
+  async function handleDeleteVideo(data: any): Promise<void> {
+    if (!data?.id) return;
+    try {
+      await deleteTaskInfo({
+        variables: { deleteTaskInfoId: data.id },
+      });
+      enqueueSnackbar('Xoá video thành công!', { variant: 'success' });
+      setOpenEditModal(false);
+      setEditItem(null);
+      if (onRefetch) onRefetch();
+    } catch (error) {
+      enqueueSnackbar('Có lỗi xảy ra khi xoá video!', { variant: 'error' });
+    }
+  }
   return (
     <Card>
       <Box sx={{ p: 2, pb: 2, display: 'flex', alignItems: 'center' }}>
@@ -664,6 +687,7 @@ export function VideoTable({
         columns={COLUMN_CONFIG}
         enumValues={getEnumValues}
         onSave={handleSaveEditModal}
+        onDelete={handleDeleteVideo}
       />
     </Card>
   );

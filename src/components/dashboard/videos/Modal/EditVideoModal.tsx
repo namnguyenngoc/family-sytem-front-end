@@ -7,6 +7,8 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Autocomplete from '@mui/material/Autocomplete';
+import { Box } from '@mui/system';
+import { useSnackbar } from 'notistack';
 
 export interface EditVideoModalProps {
   open: boolean;
@@ -15,9 +17,10 @@ export interface EditVideoModalProps {
   columns: Array<{ key: string; label: string }>;
   enumValues: (key: string) => Array<{ label: string; value: string }>;
   onSave: (data: any) => void;
+  onDelete?: (data: any) => void; // Add onDelete prop
 }
 
-export function EditVideoModal({ open, onClose, video, columns, enumValues, onSave }: EditVideoModalProps) {
+export function EditVideoModal({ open, onClose, video, columns, enumValues, onSave, onDelete }: EditVideoModalProps) {
   const [form, setForm] = React.useState<any>(video || {});
 
   React.useEffect(() => {
@@ -30,6 +33,15 @@ export function EditVideoModal({ open, onClose, video, columns, enumValues, onSa
 
   const handleSave = async () => {
     await onSave(form);
+  };
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  // Only call onDelete if provided
+  const handleDelete = async () => {
+    if (onDelete) {
+      await onDelete(form);
+    }
   };
 
   return (
@@ -165,9 +177,19 @@ export function EditVideoModal({ open, onClose, video, columns, enumValues, onSa
           })}
         </Stack>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Hủy</Button>
-        <Button onClick={handleSave} variant="contained">Lưu</Button>
+      <DialogActions sx={{ justifyContent: 'space-between' }}>
+        <Button
+          color="error"
+          variant="contained"
+          onClick={handleDelete}
+          sx={{ mr: 'auto' }}
+        >
+          Xóa
+        </Button>
+        <Box>
+          <Button onClick={onClose}>Hủy</Button>
+          <Button onClick={handleSave} variant="contained">Lưu</Button>
+        </Box>
       </DialogActions>
     </Dialog>
   );
