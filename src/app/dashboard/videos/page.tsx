@@ -10,6 +10,8 @@ import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
 import { Upload as UploadIcon } from '@phosphor-icons/react/dist/ssr/Upload';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 
 import { config } from '@/config';
 import { VideoFilters } from '@/components/dashboard/videos/videos-filters';
@@ -77,9 +79,22 @@ export default function Page(): React.JSX.Element {
     );
   }, [filter, videoItemList]);
 
-  if (loadingTaskList) return <p>Loading summary...</p>;
-
   const paginatedCustomers = applyPagination(filteredList, page, rowsPerPage);
+
+  // Move all hooks to the top, before any early returns
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+  const handleMenuClick = (type: string) => {
+    setAnchorEl(null);
+    router.push(`/dashboard/task-detail?type=${type}`);
+  };
+
+  if (loadingTaskList) return <p>Loading summary...</p>;
 
   return (
     <Stack spacing={3} sx={{ px: 1, py: 3 }}>
@@ -99,10 +114,15 @@ export default function Page(): React.JSX.Element {
           <Button 
             startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />} 
             variant="contained"
-            onClick={() => router.push('/dashboard/task-detail')}
+            onClick={handleMenuOpen}
           >
-            Add
+            Thêm mới
           </Button>
+          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+            <MenuItem onClick={() => handleMenuClick('tiktok')}>Tiktok</MenuItem>
+            <MenuItem onClick={() => handleMenuClick('agentc')}>AgentC</MenuItem>
+            <MenuItem onClick={() => handleMenuClick('uchoice')}>uChoice</MenuItem>
+          </Menu>
         </div>
       </Stack>
       

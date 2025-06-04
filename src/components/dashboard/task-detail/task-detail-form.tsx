@@ -19,7 +19,7 @@ import dayjs from 'dayjs';
 
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const states = [
   { value: 'alabama', label: 'Alabama' },
@@ -67,6 +67,7 @@ export function TaskDetailForm(): React.JSX.Element {
   const { data: enumData, loading: enumLoading } = useQuery(ENUM_LIST);
   const { data: _BRAND_LIST, loading: brandLoading } = useQuery(BRAND_LIST);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Helper to get enum values by key
   const getEnumValues = (key: string) =>
@@ -82,7 +83,24 @@ export function TaskDetailForm(): React.JSX.Element {
 
   console.log("brandOptions", brandOptions);
 
-  const [formData, setFormData] = useState({
+  type FormDataType = {
+    ten_brand: string;
+    ten_sanpham: string;
+    ghi_chu: string;
+    nen_tang_xa_hoi: string;
+    ngay_chot_don: any;
+    ngay_demo: any;
+    ngay_giao_hang: any;
+    ngay_xuat_video: any;
+    status: string;
+    trang_thai: string;
+    trangthai_delivery: string;
+    trangthai_editing: string;
+    trangthai_pickup: string;
+    thong_tin_lien_he: string;
+  };
+
+  const [formData, setFormData] = useState<FormDataType>({
     ten_brand: "",
     ten_sanpham: "",
     ghi_chu: "",
@@ -95,14 +113,18 @@ export function TaskDetailForm(): React.JSX.Element {
     trang_thai: "Xem mẫu",
     trangthai_delivery: "PENDING",
     trangthai_editing: "NOT_STARTED",
-    trangthai_pickup: "PENDING"
+    trangthai_pickup: "PENDING",
+    thong_tin_lien_he: "",
   });
 
   const [highlightFields, setHighlightFields] = React.useState<{[key:string]: boolean}>({
     ngay_chot_don: true,
-    ngay_demo: false,
-    ngay_xuat_video: false,
+    ngay_demo: true,
+    ngay_xuat_video: true,
+    thong_tin_lien_he: false,
   });
+
+  const [errors, setErrors] = useState<{[key:string]: string}>({});
 
   const [createTask, { loading, error }] = useMutation(CREATE_TASK);
   const handleChange = (e: any) => {
@@ -161,7 +183,22 @@ export function TaskDetailForm(): React.JSX.Element {
     setEstimateTime(calculateEstimateTime(newForm));
   };
 
+  const validate = () => {
+    const newErrors: {[key:string]: string} = {};
+    if (!formData.ten_brand) newErrors.ten_brand = 'Vui lòng chọn Brand';
+    if (!formData.ten_sanpham) newErrors.ten_sanpham = 'Vui lòng nhập tên sản phẩm';
+    if (!formData.nen_tang_xa_hoi) newErrors.nen_tang_xa_hoi = 'Vui lòng chọn kênh';
+    if (!formData.trang_thai) newErrors.trang_thai = 'Vui lòng chọn trạng thái';
+    if (!formData.ngay_chot_don) newErrors.ngay_chot_don = 'Vui lòng chọn ngày chốt đơn';
+    if (highlightFields.ngay_demo && !formData.ngay_demo && formData.nen_tang_xa_hoi === 'AgentC') newErrors.ngay_demo = 'Vui lòng chọn ngày demo';
+    if (highlightFields.ngay_xuat_video && !formData.ngay_xuat_video && formData.nen_tang_xa_hoi !== 'AgentC') newErrors.ngay_xuat_video = 'Vui lòng chọn ngày upload';
+    return newErrors;
+  };
+
   const handleSave = async () => {
+    const validationErrors = validate();
+    setErrors(validationErrors);
+    if (Object.keys(validationErrors).length > 0) return;
     try {
       await createTask({
         variables: {
@@ -206,11 +243,68 @@ export function TaskDetailForm(): React.JSX.Element {
   // Đảm bảo highlight đúng khi load page hoặc khi thay đổi kênh
   React.useEffect(() => {
     if (formData.nen_tang_xa_hoi === 'AgentC') {
-      setHighlightFields({ ngay_chot_don: true, ngay_demo: true, ngay_xuat_video: false });
+      setHighlightFields({ ngay_chot_don: true, ngay_demo: true, ngay_xuat_video: false, thong_tin_lien_he: true });
     } else {
-      setHighlightFields({ ngay_chot_don: true, ngay_demo: false, ngay_xuat_video: true });
+      setHighlightFields({ ngay_chot_don: true, ngay_demo: false, ngay_xuat_video: true, thong_tin_lien_he: false });
     }
+    // No return statement here!
   }, [formData.nen_tang_xa_hoi]);
+
+  // List of required field names for validation
+  const requiredFields = [
+    'ten_brand',
+    'ten_sanpham',
+    'nen_tang_xa_hoi',
+    'trang_thai',
+    'ngay_chot_don',
+    'ngay_giao_hang'
+  ];
+
+  // Validate a single field on blur
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name } = e.target;
+    if (requiredFields.includes(name)) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: formData[name as keyof FormDataType] ? '' :
+          (name === 'ten_brand' ? 'Vui lòng chọn Brand' :
+          name === 'ten_sanpham' ? 'Vui lòng nhập tên sản phẩm' :
+          name === 'nen_tang_xa_hoi' ? 'Vui lòng chọn kênh' :
+          name === 'trang_thai' ? 'Vui lòng chọn trạng thái' :
+          name === 'ngay_chot_don' ? 'Vui lòng chọn ngày chốt đơn' :
+          name === 'ngay_giao_hang' ? 'Vui lòng chọn ngày giao hàng' :
+          '')
+      }));
+    }
+  };
+
+  const brandInputRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    const ntxh = getEnumValues('NEN_TANG_XA_HOI');
+    const type = searchParams?.get('type');
+    if (ntxh && ntxh.length > 0 && type) {
+      const foundNtxh = ntxh.find(
+        (b: any) => b.value?.toLowerCase() === type.toLowerCase()
+      );
+      if (foundNtxh && formData.nen_tang_xa_hoi !== foundNtxh.label) {
+        setFormData((prev) => ({
+          ...prev,
+          nen_tang_xa_hoi: foundNtxh.label,
+        }));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [brandLoading, brandOptions, searchParams]);
+
+  // Focus Brand input after nen_tang_xa_hoi is set or on page load
+  React.useEffect(() => {
+    if (brandInputRef.current) {
+      setTimeout(() => {
+        brandInputRef.current?.focus();
+      }, 100);
+    }
+  }, [formData.nen_tang_xa_hoi, searchParams]);
 
   return (
     <form
@@ -227,13 +321,59 @@ export function TaskDetailForm(): React.JSX.Element {
         <Divider />
         <CardContent sx={{ pt: 3, pr: 2, pl: 2 }}>
           <Grid container spacing={2}>
-            <Grid md={12} xs={12}>
-            
-              <FormControl fullWidth required>
-                <InputLabel shrink>Tên sản phẩm</InputLabel>
-                <OutlinedInput 
-                  name="ten_sanpham"
-                  onChange={handleChange}
+            <Grid md={9} xs={5}>
+                <FormControl fullWidth required>
+                  <InputLabel shrink>Kênh</InputLabel>
+                  <Autocomplete
+                    freeSolo
+                    options={getEnumValues('NEN_TANG_XA_HOI').map((option: any) => option.label)}
+                    value={formData.nen_tang_xa_hoi}
+                    onChange={(_, newValue) => {
+                      const newForm = { ...formData, nen_tang_xa_hoi: newValue || '' };
+                      setFormData(newForm);
+                      setEstimateTime(calculateEstimateTime(newForm));
+                      if (newValue === 'AgentC') {
+                        setHighlightFields({ ngay_chot_don: true, ngay_demo: true, ngay_xuat_video: false, thong_tin_lien_he: true });
+                      } else {
+                        setHighlightFields({ ngay_chot_don: true, ngay_demo: false, ngay_xuat_video: true, thong_tin_lien_he: false });
+                      }
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        name="nen_tang_xa_hoi"
+                        label="Kênh"
+                        value={formData.nen_tang_xa_hoi}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        sx={{ backgroundColor: '#fffbe6' }}
+                        error={!!errors.nen_tang_xa_hoi}
+                        helperText={errors.nen_tang_xa_hoi}
+                      />
+                    )}
+                  />
+                </FormControl>
+            </Grid>
+            <Grid md={3} xs={7}>
+              <FormControl fullWidth>
+                <InputLabel shrink>Trạng thái</InputLabel>
+                <Autocomplete
+                  freeSolo
+                  options={getEnumValues('VIDEO_STATUS_PROCESSING').map((option: any) => option.label)}
+                  value={formData.trang_thai}
+                  onChange={(_, newValue) => setFormData({ ...formData, trang_thai: newValue || '' })}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      name="status"
+                      value={formData.trang_thai}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      sx={{ backgroundColor: '#fffbe6' }}
+                      error={!!errors.trang_thai}
+                      helperText={errors.trang_thai}
+                    />
+                  )}
                 />
               </FormControl>
             </Grid>
@@ -243,81 +383,77 @@ export function TaskDetailForm(): React.JSX.Element {
                 <Autocomplete
                   freeSolo
                   options={brandOptions}
-                  getOptionLabel={(option) => option.label || option.value} // cách hiển thị trong dropdown
+                  getOptionLabel={(option) => option.label || option.value}
                   value={
                     brandOptions?.find((opt: any) => opt.value === formData.ten_brand) || null
-                    }
-                    onChange={(_, newValue) =>
-                      setFormData({ ...formData, ten_brand: newValue?.value || '' })
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        name="ten_brand"
-                        label="Brand"
-                        value={formData.ten_brand}
-                        onChange={handleChange}
-                      />
-                    )}
-                  />
-                </FormControl>
-
-              </Grid>
-              <Grid md={9} xs={5}>
-               <FormControl fullWidth required>
-                <InputLabel shrink>Kênh</InputLabel>
-                <Autocomplete
-                  freeSolo
-                  options={getEnumValues('NEN_TANG_XA_HOI').map((option: any) => option.label)}
-                  value={formData.nen_tang_xa_hoi}
+                  }
                   onChange={(_, newValue) => {
-                    const newForm = { ...formData, nen_tang_xa_hoi: newValue || '' };
-                    setFormData(newForm);
-                    setEstimateTime(calculateEstimateTime(newForm));
-                    if (newValue === 'AgentC') {
-                      setHighlightFields({ ngay_chot_don: true, ngay_demo: true, ngay_xuat_video: false });
-                    } else {
-                      setHighlightFields({ ngay_chot_don: true, ngay_demo: false, ngay_xuat_video: true });
-                    }
+                    setFormData(prev => ({
+                      ...prev,
+                      ten_brand: newValue?.value || '',
+                      thong_tin_lien_he: newValue?.info?.thong_tin_lien_he || ''
+                    }));
                   }}
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      name="nen_tang_xa_hoi"
-                      label="Kênh"
-                      value={formData.nen_tang_xa_hoi}
-                      onChange={handleChange}
+                      name="ten_brand"
+                      label="Brand"
+                      value={formData.ten_brand}
+                      onChange={e => {
+                        setFormData(prev => ({
+                          ...prev,
+                          ten_brand: e.target.value,
+                          thong_tin_lien_he: '' // reset thong_tin_lien_he nếu user tự sửa
+                        }));
+                      }}
+                      onBlur={handleBlur}
+                      sx={{ backgroundColor: '#fffbe6' }}
+                      error={!!errors.ten_brand}
+                      helperText={errors.ten_brand}
+                      inputRef={brandInputRef}
                     />
                   )}
                 />
               </FormControl>
-              </Grid>
-              <Grid md={3} xs={7}>
-                <FormControl fullWidth>
-                  <InputLabel shrink>Trạng thái</InputLabel>
-                  <Autocomplete
-                    freeSolo
-                    options={getEnumValues('VIDEO_STATUS_PROCESSING').map((option: any) => option.label)}
-                    value={formData.trang_thai}
-                    onChange={(_, newValue) => setFormData({ ...formData, trang_thai: newValue || '' })}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        name="status"
-                        value={formData.trang_thai}
-                        onChange={handleChange}
-                      />
-                    )}
-                  />
-                </FormControl>
-              </Grid>
+            </Grid>
+            <Grid md={12} xs={12}>
+              <FormControl fullWidth>
+                <InputLabel shrink>Thông tin liên hệ (shop)</InputLabel>
+                <OutlinedInput 
+                  name="thong_tin_lien_he"
+                  value={formData.thong_tin_lien_he} // <-- Thêm dòng này
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  sx={highlightFields.thong_tin_lien_he ? { backgroundColor: '#fffbe6' } : {}}
+                />
+              </FormControl>
+            </Grid>
+            <Grid md={12} xs={12}>
+            
+              <FormControl fullWidth required>
+                <InputLabel shrink>Tên sản phẩm</InputLabel>
+                <OutlinedInput 
+                  name="ten_sanpham"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  sx={{ backgroundColor: '#fffbe6' }}
+                  error={!!errors.ten_sanpham}
+                />
+                {errors.ten_sanpham && <span style={{color:'red',fontSize:12}}>{errors.ten_sanpham}</span>}
+              </FormControl>
+            </Grid>
+            
+              
+              
               <Grid md={6} xs={12}>
                 <FormControl fullWidth required>
                   <DatePicker
                       label="Ngày chốt đơn"
                       value={formData.ngay_chot_don}
                       onChange={(date) => { _handleDateChange("ngay_chot_don", date); }}
-                      sx={highlightFields.ngay_chot_don ? { backgroundColor: '#fffbe6' } : {}}
+                      slotProps={{ textField: { error: !!errors.ngay_chot_don, helperText: errors.ngay_chot_don, required: true, 
+                                  InputProps: { sx: highlightFields.ngay_chot_don ? { backgroundColor: '#fffbe6' } : {} }, name: 'ngay_chot_don', onBlur: handleBlur } }}
                     />
                 </FormControl>
               </Grid>
@@ -327,7 +463,9 @@ export function TaskDetailForm(): React.JSX.Element {
                     label="Ngày demo"
                     value={formData.ngay_demo}
                     onChange={(date) => { _handleDateChange("ngay_demo", date); }}
-                    sx={highlightFields.ngay_demo ? { backgroundColor: '#fffbe6' } : {}}
+                    slotProps={{ textField: { error: !!errors.ngay_demo, helperText: errors.ngay_demo, required: true, 
+                                  InputProps: { sx: highlightFields.ngay_demo ? { backgroundColor: '#fffbe6' } : {} }, name: 'ngay_demo', onBlur: handleBlur } }}
+                    
                   />
                 </FormControl>
                 
@@ -335,22 +473,26 @@ export function TaskDetailForm(): React.JSX.Element {
               <Grid md={6} xs={6}>
                 <FormControl fullWidth required>
                   <DatePicker
-                    label="Ngày giao hàng"
-                    value={formData.ngay_giao_hang}
-                    onChange={(date) => { handleDateChange("ngay_giao_hang", date); }}
-                  />
-                </FormControl>
-              </Grid>   
-              <Grid md={6} xs={6}>
-                <FormControl fullWidth required>
-                  <DatePicker
                     label="Ngày upload video"
                     value={formData.ngay_xuat_video}
                     onChange={(date) => { _handleDateChange("ngay_xuat_video", date); }}
-                    sx={highlightFields.ngay_xuat_video ? { backgroundColor: '#fffbe6' } : {}}
+                    slotProps={{ textField: { error: !!errors.ngay_xuat_video, helperText: errors.ngay_xuat_video, required: true, 
+                                  InputProps: { sx: highlightFields.ngay_xuat_video ? { backgroundColor: '#fffbe6' } : {} }, name: 'ngay_xuat_video', onBlur: handleBlur } }}
                   />
                 </FormControl>
               </Grid> 
+
+              <Grid md={6} xs={6}>
+                <FormControl fullWidth required>
+                  <DatePicker
+                    label="Ngày giao hàng"
+                    value={formData.ngay_giao_hang}
+                    slotProps={{ textField: { error: !!errors.ngay_giao_hang, helperText: errors.ngay_giao_hang, required: true, 
+                                  InputProps: { sx: highlightFields.ngay_giao_hang ? { backgroundColor: '#fffbe6' } : {} }, name: 'ngay_giao_hang', onBlur: handleBlur } }}
+                  />
+                </FormControl>
+              </Grid>   
+              
 
               <Grid md={12} xs={12}>
                 <FormControl fullWidth required>
@@ -370,7 +512,7 @@ export function TaskDetailForm(): React.JSX.Element {
             <Button 
               variant="contained"
               color='error'
-              onClick={handleSave}
+              onClick={() => router.push('/dashboard/videos')}
             >
               Hủy
             </Button>
