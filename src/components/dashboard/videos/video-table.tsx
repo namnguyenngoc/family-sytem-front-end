@@ -57,6 +57,8 @@ export interface VideoItem {
   ngay_demo: string;
   ngay_giao_hang: string;
   ngay_hen_giao_san_pham: string;
+  ngay_upload: string;
+  thong_tin_lien_he: string;
 }
 
 interface VideoTableProps {
@@ -234,6 +236,7 @@ export function VideoTable({
             ngay_hen_giao_san_pham: data.ngay_hen_giao_san_pham,
             ngay_giao_hang: data.ngay_giao_hang,
             trang_thai: data.trang_thai,
+            thong_tin_lien_he: data.thong_tin_lien_he,
             // add other fields as needed
           },
         },
@@ -312,6 +315,37 @@ export function VideoTable({
               : '-',
         };
       }
+      if (col.key === 'ngay_air') {
+        return {
+          accessorKey: 'ngay_air',
+          header: 'NGÀY AIR',
+          cell: (info: any) =>
+            info.row.original.ngay_air
+              ? dayjs(info.row.original.ngay_air).format('DD/MM/YYYY')
+              : '-',
+        };
+      }
+      if (col.key === 'ngay_chot_don') {
+        return {
+          accessorKey: 'ngay_chot_don',
+          header: 'NGÀY CHỐT ĐƠN',
+          cell: (info: any) =>
+            info.row.original.ngay_chot_don
+              ? dayjs(info.row.original.ngay_chot_don).format('DD/MM/YYYY')
+              : '-',
+        };
+      }
+      if (col.key === 'ngay_giao_hang') {
+        return {
+          accessorKey: 'ngay_giao_hang',
+          header: 'NGÀY GIAO HÀNG',
+          cell: (info: any) =>
+            info.row.original.ngay_giao_hang
+              ? dayjs(info.row.original.ngay_giao_hang).format('DD/MM/YYYY')
+              : '-',
+        };
+      }
+      
       if (col.key === 'remaining_time') {
         return {
           accessorKey: 'remaining_time',

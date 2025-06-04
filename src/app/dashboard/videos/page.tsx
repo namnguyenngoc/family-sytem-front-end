@@ -54,6 +54,7 @@ const GET_TASK_LIST = gql`
       ten_sanpham
       trang_thai
       remaining_time
+      thong_tin_lien_he
     }
   }
 `;
