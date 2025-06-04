@@ -11,8 +11,7 @@ export interface VideoFiltersProps {
 
 export function VideoFilters({ value, onChange }: VideoFiltersProps): React.JSX.Element {
   return (
-    <Card>
-      <OutlinedInput
+    <OutlinedInput
         value={value}
         onChange={e => onChange(e.target.value)}
         fullWidth
@@ -22,8 +21,6 @@ export function VideoFilters({ value, onChange }: VideoFiltersProps): React.JSX.
             <MagnifyingGlassIcon fontSize="var(--icon-fontSize-md)" />
           </InputAdornment>
         }
-        sx={{ maxWidth: '500px' }}
       />
-    </Card>
   );
 }

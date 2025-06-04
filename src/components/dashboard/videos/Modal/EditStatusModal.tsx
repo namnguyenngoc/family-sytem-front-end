@@ -9,6 +9,7 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import { VideoItem } from '../video-table';
+import { useSnackbar } from 'notistack';
 
 interface EditStatusModalProps {
   open: boolean;
@@ -29,9 +30,11 @@ export function EditStatusModal({
   handleChangeStatus,
   setSelectedItem,
 }: EditStatusModalProps) {
+  const { enqueueSnackbar } = useSnackbar();
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Chỉnh sửa trạng thái video</DialogTitle>
+      <DialogTitle>Cập nhật trạng thái</DialogTitle>
       <DialogContent>
         {selectedItem && (
           <Stack spacing={2} sx={{ mt: 1 }}>

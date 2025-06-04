@@ -37,6 +37,7 @@ import InputLabel from '@mui/material/InputLabel';
 import { EditVideoModal } from './Modal/EditVideoModal';
 import { EditStatusModal } from './Modal/EditStatusModal';
 import { useRouter } from 'next/navigation';
+import { useSnackbar } from 'notistack';
 
 
 function noop(): void {
@@ -211,6 +212,7 @@ export function VideoTable({
   };
   // Hàm lưu modal edit all fields
   const [updateOrCreateTaskInfo] = useMutation(UPDATE_OR_CREATE_TASK_INFO);
+  const { enqueueSnackbar } = useSnackbar();
   const handleSaveEditModal = async (data: VideoItem) => {
     try {
       await updateOrCreateTaskInfo({
@@ -232,12 +234,12 @@ export function VideoTable({
       });
       setOpenEditModal(false);
       setEditItem(null);
-      alert('Cập nhật thành công!');
+      enqueueSnackbar('Cập nhật thành công!', { variant: 'success' });
       if (onRefetch) onRefetch(); // Gọi refetch từ cha nếu có
       // Update table data locally without full reload
       console.log('Cập nhật thành công!', data);
     } catch (error) {
-      alert('Có lỗi xảy ra khi cập nhật chi tiết video!');
+      enqueueSnackbar('Có lỗi xảy ra khi cập nhật chi tiết video!', { variant: 'error' });
     }
   };
 
@@ -387,12 +389,12 @@ export function VideoTable({
           { query: ENUM_LIST }, // Thay bằng query lấy danh sách video nếu có, ví dụ: GET_VIDEOS
         ],
       });
-      alert('Đã cập nhật');
+      enqueueSnackbar('Đã cập nhật', { variant: 'success' });
       setOpenModal(false);
       setSelectedItem(null);
       // Nếu bạn có hàm reload data riêng, gọi ở đây
     } catch (error) {
-      alert('Có lỗi xảy ra khi cập nhật');
+      enqueueSnackbar('Có lỗi xảy ra khi cập nhật', { variant: 'error' });
     }
   };
 
