@@ -20,6 +20,7 @@ import dayjs from 'dayjs';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useSnackbar } from 'notistack';
 
 const states = [
   { value: 'alabama', label: 'Alabama' },
@@ -68,6 +69,7 @@ export function TaskDetailForm(): React.JSX.Element {
   const { data: _BRAND_LIST, loading: brandLoading } = useQuery(BRAND_LIST);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { enqueueSnackbar } = useSnackbar();
 
   // Helper to get enum values by key
   const getEnumValues = (key: string) =>
@@ -207,14 +209,23 @@ export function TaskDetailForm(): React.JSX.Element {
           }
         }
       });
-      alert("Đã tạo, hệ thống sẽ tự động chuyển sang trang quản lý video");
+      enqueueSnackbar('Đã tạo, hệ thống sẽ tự động chuyển sang trang quản lý video', { variant: 'success' });
       router.push('/dashboard/videos');
-    } catch (err) {
+    } catch (err: any) {
+      // Show toast error message
+      let message = 'Đã xảy ra lỗi khi tạo task';
+      if (err?.graphQLErrors && err.graphQLErrors.length > 0) {
+        message = err.graphQLErrors.map((e: any) => e.message).join(', ');
+      } else if (err?.message) {
+        message = err.message;
+      }
+      enqueueSnackbar(message, { variant: 'error' });
       console.error("Error creating task:", err);
     }
   };
   // Sync default values from API when data loaded
   React.useEffect(() => {
+   
     if (!brandLoading && brandOptions.length > 0 && !formData.ten_brand) {
       setFormData((prev) => ({
         ...prev,
@@ -296,7 +307,6 @@ export function TaskDetailForm(): React.JSX.Element {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [brandLoading, brandOptions, searchParams]);
-
   // Focus Brand input after nen_tang_xa_hoi is set or on page load
   React.useEffect(() => {
     if (brandInputRef.current) {
@@ -317,7 +327,7 @@ export function TaskDetailForm(): React.JSX.Element {
           subheader={`Thời gian ước tính: ${estimateTime ?  estimateTime : "" }` }
           color={estimateTime === "Đã qua" ? "error" : "primary"}
           title="Thông tin" />
-       
+
         <Divider />
         <CardContent sx={{ pt: 3, pr: 2, pl: 2 }}>
           <Grid container spacing={2}>

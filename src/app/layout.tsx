@@ -8,9 +8,7 @@ import '@/styles/global.css';
 import { UserProvider } from '@/contexts/user-context';
 import { LocalizationProvider } from '@/components/core/localization-provider';
 import { ThemeProvider } from '@/components/core/theme-provider/theme-provider';
-import { ApolloProvider } from '@apollo/client';
-import client from '@/lib/apollo-client';
-// import ApolloProviderWrapper from '@/components/core/apollo-provider-wrapper';
+import ApolloProviderWrapper from '@/components/core/ApolloProviderWrapper';
 
 export const viewport = { width: 'device-width', initialScale: 1 } satisfies Viewport;
 
@@ -22,17 +20,15 @@ export default function Layout({ children }: LayoutProps): React.JSX.Element {
   return (
     <html lang="en">
       <body>
-        <ApolloProvider client={client}>
+        <ApolloProviderWrapper>
           <LocalizationProvider>
             <UserProvider>
               <ThemeProvider>
-                {
-                children
-                }
+                {children}
               </ThemeProvider>
             </UserProvider>
           </LocalizationProvider>
-        </ApolloProvider>
+        </ApolloProviderWrapper>
       </body>
     </html>
   );
